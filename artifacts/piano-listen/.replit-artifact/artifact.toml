@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "琴音練習室"
+description = "A browser-based piano listening test that uses the microphone to detect musical pitch in real time and display the detected note, octave, frequency, and tuning accuracy."
+version = "1.0.0"
+id = "artifacts/piano-listen"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21381
+
+[services.development]
+run = "pnpm --filter @workspace/piano-listen run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/piano-listen", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/piano-listen/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21381"
+BASE_PATH = "/"
