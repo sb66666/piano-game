@@ -8,3 +8,9 @@ Piano pitch detection must prioritize accuracy. Skipping the Central Do exercise
 **Why:** the user explicitly asked for accurate pitch, corrected the meaning of the skip control, and requested the ascending five-note practice after the hand map.
 
 **How to apply:** use the standard A4=440 Hz pitch reference, test note identification and tolerance boundaries, keep skip distinct from live detection, and advance the five-note exercise only after each target is stably detected.
+
+Keep the previously created lesson screens and content when adding or changing later lessons, unless the user explicitly asks to remove them.
+
+**Why:** the user asked that the earlier material not be deleted.
+
+**How to apply:** add new lesson content without replacing the existing home, Central Do, hand-position, or Do–Sol practice screens.

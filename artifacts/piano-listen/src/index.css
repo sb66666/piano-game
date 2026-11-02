@@ -802,6 +802,11 @@ html, body { background: #0b1715; }
 .lesson-home:hover { border-color: rgba(226, 189, 120, .7); color: #f0ead4; }
 .lesson-home:focus-visible { outline: 2px solid #d0aa68; outline-offset: 3px; }
 .bee-practice-content { justify-content: center; }
+@font-face {
+  font-family: 'Bravura';
+  src: url('./assets/Bravura.woff2') format('woff2');
+  font-display: block;
+}
 .bee-score-sheet {
   width: 100%;
   border: 1px solid rgba(226, 189, 120, .3);
@@ -810,27 +815,38 @@ html, body { background: #0b1715; }
   background: rgba(243, 239, 220, .96);
   box-shadow: 0 18px 54px rgba(0, 0, 0, .18);
 }
-.bee-score-image-stage {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 468 / 58;
-  overflow: hidden;
+.bee-score-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #b5a583 transparent;
+  overscroll-behavior-x: contain;
 }
-.bee-score-image-stage img,
-.bee-score-note-overlay {
-  position: absolute;
-  inset: 0;
+.bee-score-viewport:focus-visible { outline: 2px solid #ba8d47; outline-offset: 3px; }
+.bee-score-strip {
+  display: flex;
+  width: max-content;
+  align-items: center;
+}
+.bee-score-vector {
   display: block;
-  width: 100%;
-  height: 100%;
+  flex: none;
 }
-.bee-score-image-stage img { object-fit: fill; }
-.bee-score-note-overlay { pointer-events: none; }
-.bee-score-note { fill: transparent; transition: fill 180ms ease; }
+.score-staff-line { stroke: #655f53; stroke-width: 1; }
+.score-stem, .score-bar-line { stroke: #272b28; stroke-width: 1.5; }
+.score-final-bar { stroke: #272b28; stroke-width: 3.5; }
+.score-beam { fill: #272b28; }
+.score-clef { font-family: 'Bravura'; font-size: 40px; fill: #272b28; }
+.score-time-signature { font: bold 19px Georgia, serif; fill: #272b28; }
+.bee-score-note { fill: #272b28; stroke: #272b28; stroke-width: 1; transition: fill 180ms ease, stroke 180ms ease; }
+.bee-score-note.is-half { fill: #f3efdc; stroke-width: 2; }
 .bee-score-note.is-played {
   fill: #3185ee;
-  opacity: .96;
-  mix-blend-mode: multiply;
+  stroke: #2474d2;
+}
+.bee-score-note.is-current {
+  stroke: #c78c2a;
+  stroke-width: 2.5;
 }
 .bee-song-status {
   min-height: 20px;

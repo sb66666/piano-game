@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import beeScoreImage from '@assets/0_Screenshot_2026-11-02_2.45.40_PM_1793602029495.png';
+import { BeeScore } from '@/components/bee-score';
 import { makeReading, midiFromReading, pitchFromBuffer, type Reading } from '@/lib/pitch';
 import {
   BEE_SONG_SCORE,
@@ -222,24 +222,7 @@ export default function BeePracticeScreen() {
       <div className="lesson-wrap">
         <section className="lesson-content page-enter bee-practice-content" aria-labelledby="bee-practice-title">
           <h1 id="bee-practice-title" className="sr-only">小蜜蜂練習</h1>
-          <div className="bee-score-sheet" role="group" aria-label={`小蜜蜂樂譜，已彈 ${noteIndex} / ${BEE_SONG_SCORE.length} 個音`}>
-            <div className="bee-score-image-stage">
-              <img src={beeScoreImage} alt="小蜜蜂樂譜" />
-              <svg className="bee-score-note-overlay" viewBox="0 0 468 58" aria-hidden="true">
-                {BEE_SONG_SCORE.map((note, index) => (
-                  <ellipse
-                    key={`${note.midi}-${index}`}
-                    cx={note.x}
-                    cy={note.y}
-                    rx="4.3"
-                    ry="3.1"
-                    className={index < noteIndex ? 'bee-score-note is-played' : 'bee-score-note'}
-                    data-testid={`bee-score-note-${index}`}
-                  />
-                ))}
-              </svg>
-            </div>
-          </div>
+          <BeeScore noteIndex={noteIndex} />
 
           <p className="bee-song-status" role="status" aria-live="polite" data-testid="bee-song-progress">
             {phase === 'complete' ? '完成！' : `已彈 ${noteIndex} / ${BEE_SONG_SCORE.length} 個音`}

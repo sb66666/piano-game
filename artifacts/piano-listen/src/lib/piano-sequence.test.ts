@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   BEE_SONG_SCORE,
+  BEE_SONG_MEASURES,
   FIVE_NOTE_SEQUENCE,
   matchesSequenceNote,
   SEQUENCE_MINIMUM_RMS,
@@ -21,9 +22,16 @@ describe('five-note piano sequence', () => {
   it('maps the uploaded bee score to the correct note order and staff positions', () => {
     expect(BEE_SONG_SCORE.map(({ midi }) => midi)).toEqual([
       67, 64, 64, 65, 62, 62, 60, 62, 64, 65, 67, 67, 67,
+      67, 64, 64, 65, 62, 62, 60, 64, 67, 67, 64,
+      62, 62, 62, 62, 62, 64, 65, 64, 64, 64, 64, 64, 65, 67,
+      67, 64, 64, 65, 62, 62, 60, 64, 67, 67, 60,
     ]);
-    expect(BEE_SONG_SCORE).toHaveLength(13);
-    expect(BEE_SONG_SCORE.every(({ x, y }) => x >= 0 && x <= 468 && y >= 0 && y <= 58)).toBe(true);
+    expect(BEE_SONG_SCORE).toHaveLength(49);
+    expect(BEE_SONG_MEASURES).toHaveLength(16);
+    expect(BEE_SONG_MEASURES[0].map((note) => note.duration)).toEqual(['eighth', 'eighth', 'quarter']);
+    expect(BEE_SONG_MEASURES[2].map((note) => note.duration)).toEqual(['eighth', 'eighth', 'eighth', 'eighth']);
+    expect(BEE_SONG_MEASURES[7][0].duration).toBe('half');
+    expect(BEE_SONG_MEASURES[15][0].duration).toBe('half');
   });
 
   it('accepts the target note only within the pitch and clarity limits', () => {
