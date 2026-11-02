@@ -34,31 +34,31 @@
 }
 
 :root {
-  --background: 42 36% 94%;
-  --foreground: 164 20% 18%;
-  --border: 38 17% 83%;
-  --input: 38 17% 83%;
+  --background: 43 30% 94%;
+  --foreground: 152 23% 17%;
+  --border: 39 19% 81%;
+  --input: 39 19% 81%;
   --card: 43 32% 97%;
-  --card-foreground: 164 20% 18%;
+  --card-foreground: 152 23% 17%;
   --card-border: 40 20% 85%;
-  --primary: 160 27% 31%;
+  --primary: 155 31% 29%;
   --primary-foreground: 43 40% 96%;
   --secondary: 40 21% 89%;
-  --secondary-foreground: 164 20% 23%;
+  --secondary-foreground: 152 20% 21%;
   --muted: 40 20% 89%;
-  --muted-foreground: 158 8% 44%;
-  --accent: 15 50% 66%;
-  --accent-foreground: 164 20% 18%;
+  --muted-foreground: 155 9% 42%;
+  --accent: 33 65% 55%;
+  --accent-foreground: 152 23% 17%;
   --destructive: 2 58% 49%;
   --destructive-foreground: 43 40% 96%;
-  --ring: 160 27% 31%;
+  --ring: 155 31% 29%;
   --chart-1: 160 27% 31%;
   --chart-2: 15 50% 66%;
   --chart-3: 39 43% 58%;
   --chart-4: 191 23% 53%;
   --chart-5: 330 20% 62%;
   --app-font-sans: 'DM Sans', 'Noto Sans TC', sans-serif;
-  --app-font-serif: 'Manrope', 'Noto Sans TC', sans-serif;
+  --app-font-serif: 'Noto Serif TC', 'Manrope', serif;
   --app-font-mono: 'IBM Plex Mono', monospace;
   --radius: 1rem;
 }
@@ -108,6 +108,35 @@
     radial-gradient(ellipse at 94% 88%, rgba(83, 123, 105, .10), transparent 31rem),
     hsl(var(--background));
 }
+.forest-home {
+  min-height: 100dvh;
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  background-color: #172019;
+  background-position: center;
+  background-size: cover;
+}
+.forest-home::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(8, 15, 11, .84) 0%, rgba(12, 19, 13, .64) 35%, rgba(15, 20, 14, .12) 76%),
+    linear-gradient(0deg, rgba(8, 14, 10, .52), transparent 42%);
+}
+.forest-home::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: .1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E");
+}
+.home-copy { text-shadow: 0 2px 20px rgba(0,0,0,.35); }
+.home-action { transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease; }
+.home-action:hover { transform: translateX(4px); }
 .studio-shell::after {
   content: '';
   pointer-events: none;
@@ -128,4 +157,12 @@
 .readout-card { box-shadow: 0 20px 60px rgba(53, 66, 57, .055), 0 2px 8px rgba(53, 66, 57, .035); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
+@media (max-width: 640px) {
+  .forest-home { background-position: 57% center; }
+  .forest-home::before {
+    background:
+      linear-gradient(90deg, rgba(8, 15, 11, .76), rgba(12, 19, 13, .28)),
+      linear-gradient(0deg, rgba(8, 14, 10, .66), transparent 70%);
+  }
 }

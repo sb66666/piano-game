@@ -4,8 +4,9 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
-import { Activity, AudioLines, Check, Mic, MicOff, Music2, ShieldCheck } from 'lucide-react';
+import { Activity, ArrowUpRight, AudioLines, Check, Mic, MicOff, Music2, ShieldCheck } from 'lucide-react';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
+import forestScene from '@assets/generated_images/piano-forest-home.jpg';
 
 type Phase = 'idle' | 'requesting' | 'listening' | 'denied' | 'unavailable' | 'unsupported' | 'error';
 type Reading = { frequency: number; noteIndex: number; cents: number; note: string; octave: number };
@@ -81,7 +82,8 @@ function makeReading(frequency: number): Reading {
   };
 }
 
-function Home() {
+function ListenScreen() {
+  const [, setLocation] = useLocation();
   const [phase, setPhase] = useState<Phase>('idle');
   const [reading, setReading] = useState<Reading | null>(null);
   const [signal, setSignal] = useState(0);
@@ -242,9 +244,12 @@ function Home() {
               <p className="mt-0.5 text-[10px] tracking-[.18em] text-[hsl(var(--muted-foreground))]">LISTEN · LEARN · PLAY</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-[hsl(var(--foreground)/.11)] bg-[hsl(var(--card)/.64)] px-3 py-2 text-xs text-[hsl(var(--muted-foreground))]">
-            <ShieldCheck size={15} className="text-[hsl(var(--primary))]" aria-hidden="true" />
-            <span>音訊僅在此裝置分析</span>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => { void stopListening(); setLocation('/'); }} className="rounded-full px-3 py-2 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:bg-[hsl(var(--secondary))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary))]" data-testid="button-return-home">返回首頁</button>
+            <div className="hidden items-center gap-2 rounded-full border border-[hsl(var(--foreground)/.11)] bg-[hsl(var(--card)/.64)] px-3 py-2 text-xs text-[hsl(var(--muted-foreground))] sm:flex">
+              <ShieldCheck size={15} className="text-[hsl(var(--primary))]" aria-hidden="true" />
+              <span>音訊僅在此裝置分析</span>
+            </div>
           </div>
         </header>
 
@@ -414,11 +419,46 @@ function Home() {
   );
 }
 
+function Home() {
+  const [, setLocation] = useLocation();
+  const enterPractice = () => setLocation('/listen');
+  return (
+    <main className="forest-home flex min-h-[100dvh] items-center" style={{ backgroundImage: `url("${forestScene}")` }}>
+      <div className="relative z-[1] mx-auto flex min-h-[100dvh] w-full max-w-[1440px] items-center px-7 py-12 sm:px-14 lg:px-[9.2vw]">
+        <section className="home-copy page-enter w-full max-w-[520px] text-[hsl(43_45%_94%)]" aria-labelledby="home-title">
+          <p className="mb-5 flex items-center gap-3 text-[11px] font-semibold tracking-[.28em] text-[hsl(39_78%_75%)] sm:text-xs">
+            <span className="h-px w-9 bg-[hsl(39_78%_68%)]" aria-hidden="true" />
+            初學者的第一段琴音
+          </p>
+          <h1 id="home-title" className="font-serif text-[42px] font-semibold leading-[1.28] tracking-[.08em] sm:text-[56px] lg:text-[64px]">學習鋼琴<br />模擬器</h1>
+          <p className="mt-5 max-w-[370px] text-[14px] leading-7 text-[rgba(247,239,218,.78)] sm:text-[15px]">
+            沿著燈火指引，從聽見每一個音開始。彈奏一個琴鍵，讓即時音高練習陪你熟悉琴音。
+          </p>
+          <div className="mt-9 flex max-w-[310px] flex-col gap-3.5">
+            <button type="button" onClick={enterPractice} className="home-action group flex min-h-[56px] w-full items-center justify-between rounded-[3px] border border-[hsl(39_70%_67%/.76)] bg-[hsl(39_70%_57%/.93)] px-5 text-left text-[15px] font-semibold tracking-[.08em] text-[#1c2118] shadow-[0_10px_32px_rgba(8,10,6,.24)] hover:bg-[hsl(39_74%_66%)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[hsl(39_78%_72%/.55)]" data-testid="button-start-learning">
+              <span>開始學習</span><ArrowUpRight size={18} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" aria-hidden="true" />
+            </button>
+            <button type="button" onClick={enterPractice} className="home-action flex min-h-[54px] w-full items-center justify-between rounded-[3px] border border-[rgba(244,232,201,.38)] bg-[rgba(19,27,19,.38)] px-5 text-left text-[14px] font-medium tracking-[.08em] text-[hsl(43_45%_94%)] backdrop-blur-[3px] hover:border-[hsl(39_70%_67%/.8)] hover:bg-[rgba(19,27,19,.58)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[hsl(39_78%_72%/.55)]" data-testid="button-continue-learning">
+              <span>繼續學習</span><ArrowUpRight size={17} aria-hidden="true" />
+            </button>
+          </div>
+          <p className="mt-7 flex items-center gap-2 text-[10px] tracking-[.1em] text-[rgba(247,239,218,.68)]" role="status" data-testid="status-home">
+            <span className="h-1.5 w-1.5 rounded-full bg-[hsl(39_78%_68%)]" aria-hidden="true" />
+            即時聆聽練習 · 無需帳戶
+          </p>
+        </section>
+        <p className="absolute bottom-7 right-8 hidden text-[9px] tracking-[.24em] text-[rgba(247,239,218,.62)] md:block">循著琴音，走進森林深處</p>
+      </div>
+    </main>
+  );
+}
+
 function Router() {
   return (
     <RoutedErrorBoundary>
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/listen" component={ListenScreen} />
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>
