@@ -6,6 +6,8 @@ import {
   FIVE_NOTE_SEQUENCE,
   matchesSequenceNote,
   REQUIRED_STABLE_FRAMES,
+  SEQUENCE_MINIMUM_RMS,
+  SEQUENCE_STABLE_FRAMES_REQUIRED,
 } from '@/lib/piano-sequence';
 
 type LessonPhase = 'idle' | 'requesting' | 'listening' | 'denied' | 'unavailable' | 'unsupported' | 'error' | 'complete';
@@ -109,7 +111,11 @@ function PitchLesson({ mode }: { mode: LessonMode }) {
       timerRef.current = window.setInterval(() => {
         if (generation !== generationRef.current) return;
         analyser.getFloatTimeDomainData(buffer);
-        const frame = pitchFromBuffer(buffer, context.sampleRate);
+        const frame = pitchFromBuffer(
+          buffer,
+          context.sampleRate,
+          mode === 'five-note-sequence' ? SEQUENCE_MINIMUM_RMS : undefined,
+        );
         if (!frame) {
           stableTargetFramesRef.current = 0;
           return;
@@ -118,9 +124,18 @@ function PitchLesson({ mode }: { mode: LessonMode }) {
         setReading(nextReading);
         const target = lessonSequence[sequenceIndexRef.current];
         const isStableTarget = target !== undefined
-          && matchesSequenceNote(midiFromReading(nextReading), nextReading.cents, frame.clarity, target.midi);
+          && matchesSequenceNote(
+            midiFromReading(nextReading),
+            nextReading.cents,
+            frame.clarity,
+            target.midi,
+            frame.rms,
+          );
         stableTargetFramesRef.current = isStableTarget ? stableTargetFramesRef.current + 1 : 0;
-        if (stableTargetFramesRef.current >= REQUIRED_STABLE_FRAMES) {
+        const requiredStableFrames = mode === 'five-note-sequence'
+          ? SEQUENCE_STABLE_FRAMES_REQUIRED
+          : REQUIRED_STABLE_FRAMES;
+        if (stableTargetFramesRef.current >= requiredStableFrames) {
           stableTargetFramesRef.current = 0;
           const nextIndex = sequenceIndexRef.current + 1;
           sequenceIndexRef.current = nextIndex;
@@ -146,7 +161,7 @@ function PitchLesson({ mode }: { mode: LessonMode }) {
       else if (name === 'NotFoundError' || name === 'DevicesNotFoundError' || name === 'NotReadableError') setPhase('unavailable');
       else setPhase('error');
     }
-  }, [lessonSequence, phase, releaseAudio, stopListening]);
+  }, [lessonSequence, mode, phase, releaseAudio, stopListening]);
 
   const startListeningRef = useRef(startListening);
   startListeningRef.current = startListening;

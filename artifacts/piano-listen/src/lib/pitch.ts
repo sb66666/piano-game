@@ -11,12 +11,12 @@ export type PitchFrame = { frequency: number; clarity: number; rms: number };
 export const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
 export const NOTE_TW = ['Do', '升 Do', 'Re', '升 Re', 'Mi', 'Fa', '升 Fa', 'Sol', '升 Sol', 'La', '升 La', 'Si'];
 
-export function pitchFromBuffer(buffer: Float32Array, sampleRate: number): PitchFrame | null {
+export function pitchFromBuffer(buffer: Float32Array, sampleRate: number, minimumRms = 0.007): PitchFrame | null {
   const size = buffer.length;
   let energy = 0;
   for (let i = 0; i < size; i += 1) energy += buffer[i] * buffer[i];
   const rms = Math.sqrt(energy / size);
-  if (rms < 0.007) return null;
+  if (rms < minimumRms) return null;
 
   const minLag = Math.max(2, Math.floor(sampleRate / 4200));
   const maxLag = Math.min(Math.floor(sampleRate / 27), Math.floor(size * 0.48));

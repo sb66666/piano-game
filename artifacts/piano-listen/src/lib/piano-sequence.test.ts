@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   FIVE_NOTE_SEQUENCE,
   matchesSequenceNote,
+  SEQUENCE_MINIMUM_RMS,
 } from './piano-sequence';
 import { makeReading, midiFromReading, pitchFromBuffer } from './pitch';
 
@@ -41,5 +42,68 @@ describe('five-note piano sequence', () => {
     expect(midiFromReading(reading)).toBe(midi);
     expect(Math.abs(reading.cents)).toBeLessThanOrEqual(25);
     expect(frame.clarity).toBeGreaterThanOrEqual(0.84);
+  });
+
+  it.each([
+    ['balanced piano harmonics', [0.18, 0.35, 0.22, 0.12]],
+    ['a strong second harmonic', [0.05, 0.42, 0.19, 0.11]],
+  ])('keeps G4 as Sol with %s', (_profile, amplitudes) => {
+    const sampleRate = 48_000;
+    const fundamental = 440 * 2 ** ((67 - 69) / 12);
+    const samples = Float32Array.from({ length: 4096 }, (_, index) =>
+      amplitudes.reduce((sum, amplitude, harmonicIndex) => (
+        sum + amplitude * Math.sin((2 * Math.PI * fundamental * (harmonicIndex + 1) * index) / sampleRate)
+      ), 0),
+    );
+    const frame = pitchFromBuffer(samples, sampleRate);
+
+    expect(frame).not.toBeNull();
+    if (!frame) return;
+    expect(midiFromReading(makeReading(frame.frequency))).toBe(67);
+  });
+
+  it('can detect a quiet but clear G4 without accepting quiet noise as a target', () => {
+    const sampleRate = 48_000;
+    const fundamental = 440 * 2 ** ((67 - 69) / 12);
+    const quietHarmonics = [0.05, 0.42, 0.19, 0.11];
+    const quietG4 = Float32Array.from({ length: 4096 }, (_, index) => (
+      quietHarmonics.reduce((sum, amplitude, harmonicIndex) => (
+        sum + 0.01 * amplitude * Math.sin(
+          (2 * Math.PI * fundamental * (harmonicIndex + 1) * index) / sampleRate,
+        )
+      ), 0)
+    ));
+    const quietFrame = pitchFromBuffer(quietG4, sampleRate, SEQUENCE_MINIMUM_RMS);
+
+    expect(quietFrame).not.toBeNull();
+    if (!quietFrame) return;
+    const quietReading = makeReading(quietFrame.frequency);
+    expect(quietFrame.rms).toBeLessThan(0.007);
+    expect(matchesSequenceNote(
+      midiFromReading(quietReading),
+      quietReading.cents,
+      quietFrame.clarity,
+      67,
+      quietFrame.rms,
+    )).toBe(true);
+
+    let seed = 17;
+    const noise = Float32Array.from({ length: 4096 }, () => {
+      seed = (seed * 16_807) % 2_147_483_647;
+      return ((seed / 2_147_483_647) * 2 - 1) * 0.005;
+    });
+    const noiseFrame = pitchFromBuffer(noise, sampleRate, SEQUENCE_MINIMUM_RMS);
+    let noiseAccepted = false;
+    if (noiseFrame) {
+      const noiseReading = makeReading(noiseFrame.frequency);
+      noiseAccepted = matchesSequenceNote(
+        midiFromReading(noiseReading),
+        noiseReading.cents,
+        noiseFrame.clarity,
+        67,
+        noiseFrame.rms,
+      );
+    }
+    expect(noiseAccepted).toBe(false);
   });
 });
