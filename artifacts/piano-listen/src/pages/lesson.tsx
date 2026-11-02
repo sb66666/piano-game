@@ -193,9 +193,9 @@ function PitchLesson({ mode }: { mode: LessonMode }) {
         : phase === 'error'
           ? '麥克風連線中斷。'
           : null;
-  const skipToHandPosition = async () => {
+  const skipToNextScreen = async () => {
     await stopListening('idle');
-    setLocation('/hand-position');
+    setLocation(isSequenceLesson ? '/bee-intro' : '/hand-position');
   };
   const restartSequence = async () => {
     await stopListening('idle');
@@ -209,13 +209,13 @@ function PitchLesson({ mode }: { mode: LessonMode }) {
   return (
     <main className="lesson-shell">
       <div className="lesson-wrap">
-        {!isSequenceLesson && (
+        {(!isSequenceLesson || phase !== 'complete') && (
           <button
             type="button"
             className="lesson-skip"
-            onClick={() => void skipToHandPosition()}
-            aria-label="跳過中央 Do 練習，前往手指位置"
-            data-testid="button-skip-lesson"
+            onClick={() => void skipToNextScreen()}
+            aria-label={isSequenceLesson ? '跳過 Do 到 Sol 練習，前往小蜜蜂介紹' : '跳過中央 Do 練習，前往手指位置'}
+            data-testid={isSequenceLesson ? 'button-skip-sequence' : 'button-skip-lesson'}
           >
             跳過
           </button>
