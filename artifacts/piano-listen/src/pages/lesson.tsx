@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'wouter';
 import { makeReading, midiFromReading, pitchFromBuffer, type Reading } from '@/lib/pitch';
 
 type LessonPhase = 'idle' | 'requesting' | 'listening' | 'denied' | 'unavailable' | 'unsupported' | 'error' | 'complete';
@@ -13,12 +14,9 @@ const WHITE_MIDI = Array.from({ length: 24 }, (_, index) => 48 + index).filter((
 const BLACK_MIDI = Array.from({ length: 24 }, (_, index) => 48 + index).filter((midi) => !WHITE_PITCHES.has(midi % 12));
 
 export default function LessonScreen() {
-  const previewRequestedOnLoad = useRef(
-    new URLSearchParams(window.location.search).get('preview') === '1',
-  );
+  const [, setLocation] = useLocation();
   const [phase, setPhase] = useState<LessonPhase>('idle');
   const [reading, setReading] = useState<Reading | null>(null);
-  const [previewMode, setPreviewMode] = useState(previewRequestedOnLoad.current);
   const streamRef = useRef<MediaStream | null>(null);
   const contextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
@@ -134,12 +132,17 @@ export default function LessonScreen() {
   startListeningRef.current = startListening;
 
   useEffect(() => {
-    if (previewRequestedOnLoad.current) return;
     const timer = window.setTimeout(() => {
       void startListeningRef.current();
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (phase !== 'complete') return;
+    const timer = window.setTimeout(() => setLocation('/hand-position'), 900);
+    return () => window.clearTimeout(timer);
+  }, [phase, setLocation]);
 
   const detectedMidi = reading ? midiFromReading(reading) : null;
   const targetMidi = CENTRAL_C_MIDI;
@@ -153,16 +156,9 @@ export default function LessonScreen() {
         : phase === 'error'
           ? '麥克風連線中斷。'
           : null;
-  const togglePreview = async () => {
-    if (previewMode) {
-      setPreviewMode(false);
-      setReading(null);
-      void startListening();
-      return;
-    }
+  const skipToHandPosition = async () => {
     await stopListening('idle');
-    setReading(null);
-    setPreviewMode(true);
+    setLocation('/hand-position');
   };
 
   return (
@@ -171,12 +167,11 @@ export default function LessonScreen() {
         <button
           type="button"
           className="lesson-skip"
-          onClick={() => void togglePreview()}
-          aria-label={previewMode ? '退出預覽並重新收音' : '跳過收音，預覽中央 Do 琴鍵'}
-          aria-pressed={previewMode}
-          data-testid="button-skip-preview"
+          onClick={() => void skipToHandPosition()}
+          aria-label="跳過中央 Do 練習，前往手指位置"
+          data-testid="button-skip-lesson"
         >
-          {previewMode ? '退出預覽' : '跳過'}
+          跳過
         </button>
         <section className="lesson-content page-enter" aria-labelledby="lesson-instruction">
           <div className={`lesson-dialogue ${isError ? 'is-retryable' : ''}`}>
@@ -193,7 +188,7 @@ export default function LessonScreen() {
                 }
               } : undefined}
             >
-              彈下中央 Do 吧！
+              {phase === 'complete' ? '成功' : '彈下中央 Do 吧！'}
             </h1>
           </div>
 
@@ -203,8 +198,7 @@ export default function LessonScreen() {
                 {WHITE_MIDI.map((midi) => {
                   const noteIndex = midi % 12;
                   const octave = Math.floor(midi / 12) - 1;
-                  const highlighted = detectedMidi === midi
-                    || ((phase === 'complete' || previewMode) && midi === targetMidi);
+                  const highlighted = detectedMidi === midi || (phase === 'complete' && midi === targetMidi);
                   return (
                     <div key={midi} className={`lesson-white-key ${highlighted ? 'key-active' : ''} ${midi === targetMidi ? 'key-target' : ''}`} aria-label={`${KEY_NAMES[noteIndex]}${octave}${highlighted ? '，目前偵測到' : ''}`} data-testid={`key-note-${midi}`}>
                       {highlighted && <span className="key-glint" aria-hidden="true" />}
@@ -223,12 +217,7 @@ export default function LessonScreen() {
               </div>
             </div>
           </section>
-          {previewMode && (
-            <span className="sr-only" role="status" aria-live="polite">
-              預覽模式：中央 Do 琴鍵已標示，這不是音準判定。
-            </span>
-          )}
-          {errorMessage && !previewMode && (
+          {errorMessage && (
             <p className="lesson-error" role="status" aria-live="polite">{errorMessage}</p>
           )}
         </section>

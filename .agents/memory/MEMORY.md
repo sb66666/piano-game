@@ -1,1 +1,1 @@
-- [Pitch accuracy](pitch-accuracy.md) — prioritize correct note detection; never present a preview as a real microphone result.
+- [Pitch accuracy and lesson flow](pitch-accuracy.md) — preserve accurate detection; skipping advances to the next screen, while real Do success opens the hand map.
