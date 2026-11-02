@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation } from 'wouter';
-import { ArrowLeft, Check, Headphones, Mic, MicOff, Music2, Sparkles } from 'lucide-react';
-import { makeReading, midiFromReading, NOTE_TW, pitchFromBuffer, type Reading } from '@/lib/pitch';
+import { makeReading, midiFromReading, pitchFromBuffer, type Reading } from '@/lib/pitch';
 
 type LessonPhase = 'idle' | 'requesting' | 'listening' | 'denied' | 'unavailable' | 'unsupported' | 'error' | 'complete';
 
@@ -11,7 +9,6 @@ const WHITE_MIDI = Array.from({ length: 24 }, (_, index) => 48 + index).filter((
 const BLACK_MIDI = Array.from({ length: 24 }, (_, index) => 48 + index).filter((midi) => !WHITE_PITCHES.has(midi % 12));
 
 export default function LessonScreen() {
-  const [, setLocation] = useLocation();
   const [phase, setPhase] = useState<LessonPhase>('idle');
   const [reading, setReading] = useState<Reading | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -123,70 +120,52 @@ export default function LessonScreen() {
     }
   }, [phase, releaseAudio, stopListening]);
 
+  const startListeningRef = useRef(startListening);
+  startListeningRef.current = startListening;
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void startListeningRef.current();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const detectedMidi = reading ? midiFromReading(reading) : null;
   const targetMidi = 60;
-  const phaseMessage: Record<LessonPhase, string> = {
-    idle: '準備好了嗎？按下聆聽，再彈一個音。',
-    requesting: '請在瀏覽器提示出現時，允許使用麥克風。',
-    listening: reading
-      ? detectedMidi === targetMidi
-        ? '快找到中央 Do 了，讓琴音再穩穩地響一下。'
-        : `聽見 ${NOTE_TW[reading.noteIndex]}${reading.octave} 了。試著往中央 Do 靠近一點。`
-      : '我正在聽。輕輕彈下一個琴鍵，讓聲音自然延續。',
-    denied: '麥克風權限尚未開啟。請到瀏覽器的網站設定允許麥克風，再試一次。',
-    unavailable: '目前找不到可用的麥克風，請確認裝置已連接，或關閉正在使用麥克風的其他程式。',
-    unsupported: '這個瀏覽器暫時無法使用麥克風收音，請改用新版瀏覽器並以安全連線開啟。',
-    error: '收音中斷了。確認麥克風狀態後，再重新開始聆聽吧。',
-    complete: '就是這個音！你找到了中央 Do，第一步已經穩穩踏出。',
-  };
-  const isListening = phase === 'listening';
   const isError = ['denied', 'unavailable', 'unsupported', 'error'].includes(phase);
+  const errorMessage = phase === 'denied'
+    ? '請允許麥克風。'
+    : phase === 'unavailable'
+      ? '找不到麥克風。'
+      : phase === 'unsupported'
+        ? '瀏覽器無法使用麥克風。'
+        : phase === 'error'
+          ? '麥克風連線中斷。'
+          : null;
 
   return (
     <main className="lesson-shell">
       <div className="lesson-wrap">
-        <header className="lesson-header">
-          <button type="button" className="lesson-back" onClick={() => { void stopListening(); setLocation('/'); }} data-testid="button-lesson-home">
-            <ArrowLeft size={16} aria-hidden="true" />
-            <span>返回首頁</span>
-          </button>
-          <div className="lesson-brand">
-            <span className="lesson-brand-mark"><Music2 size={17} aria-hidden="true" /></span>
-            <span>琴音練習室</span>
-          </div>
-          <span className="lesson-counter">第 01 課 <i aria-hidden="true" /> 01 / 01</span>
-        </header>
-
-        <section className="lesson-content page-enter" aria-labelledby="lesson-stage-title">
-          <div className="lesson-eyebrow"><span /> 第一個音 · 中央 C</div>
-          <h1 id="lesson-stage-title" className="lesson-stage-title">鍵盤</h1>
-          <div className={`lesson-dialogue ${phase === 'complete' ? 'is-complete' : ''}`}>
-            <span className="dialogue-spark dialogue-spark-one" aria-hidden="true">✳</span>
-            <span className="dialogue-spark dialogue-spark-two" aria-hidden="true">✳</span>
-            <div className="dialogue-label"><Sparkles size={14} aria-hidden="true" /> 今天的小任務</div>
-            <h2 id="lesson-instruction">{phase === 'complete' ? '太好了，你找到了！' : '彈下中央 Do 吧！'}</h2>
-            <p>不用急，讓耳朵帶路。找到中間那個 Do 就完成了。</p>
-            <div className="dialogue-tail" aria-hidden="true" />
+        <section className="lesson-content page-enter" aria-labelledby="lesson-instruction">
+          <div className={`lesson-dialogue ${isError ? 'is-retryable' : ''}`}>
+            <h1
+              id="lesson-instruction"
+              className="lesson-prompt"
+              role={isError ? 'button' : undefined}
+              tabIndex={isError ? 0 : undefined}
+              onClick={isError ? () => void startListening() : undefined}
+              onKeyDown={isError ? (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  void startListening();
+                }
+              } : undefined}
+            >
+              彈下中央 Do 吧！
+            </h1>
           </div>
 
-          <div className="lesson-progress" aria-label={phase === 'complete' ? '課程已完成' : '正在進行第一個音的練習'}>
-            <span className={`progress-dot ${phase === 'complete' ? 'done' : 'current'}`}>{phase === 'complete' ? <Check size={12} /> : '1'}</span>
-            <span className="progress-line" />
-            <span className={`progress-dot ${phase === 'complete' ? 'done' : ''}`}>{phase === 'complete' ? <Check size={12} /> : '✓'}</span>
-            <span className="progress-caption">{phase === 'complete' ? '第一課完成' : '找到中央 Do'}</span>
-          </div>
-
-          <section className="lesson-keyboard-card" aria-labelledby="keyboard-title">
-            <div className="keyboard-heading">
-              <div>
-                <p className="lesson-overline">聽見音符，就看見它</p>
-                <h2 id="keyboard-title">琴鍵會替你亮起來</h2>
-              </div>
-              <div className={`listen-indicator ${isListening ? 'is-live' : ''}`} role="status" aria-live="polite">
-                <span />
-                {phase === 'requesting' ? '連接中' : isListening ? '正在聆聽' : phase === 'complete' ? '已找到' : '等待開始'}
-              </div>
-            </div>
+          <section className="lesson-keyboard-card" aria-label="鋼琴鍵盤">
             <div className="lesson-keyboard" role="group" aria-label="兩個八度的鋼琴琴鍵，偵測到的音符會亮起">
               <div className="white-keys">
                 {WHITE_MIDI.map((midi) => {
@@ -210,40 +189,11 @@ export default function LessonScreen() {
                 })}
               </div>
             </div>
-            <p className="keyboard-caption">
-              {reading
-                ? <>目前聽見 <strong>{NOTE_TW[reading.noteIndex]}{reading.octave}</strong><span className="caption-frequency">{reading.frequency.toFixed(1)} Hz</span></>
-                : '中央 Do 就在這排琴鍵中間，標記好的鍵是今天的目標。'}
-            </p>
           </section>
-
-          <div className={`lesson-guidance ${isError ? 'guidance-error' : ''} ${phase === 'complete' ? 'guidance-success' : ''}`} role="status" aria-live="polite" data-testid="status-lesson-guidance">
-            <span className="guidance-icon">{phase === 'complete' ? <Check size={17} /> : isError ? <MicOff size={17} /> : <Headphones size={17} />}</span>
-            <p>{phaseMessage[phase]}</p>
-          </div>
-
-          <div className="lesson-actions">
-            {isListening ? (
-              <button type="button" className="lesson-primary lesson-stop" onClick={() => void stopListening()} data-testid="button-stop-lesson-listening">
-                <MicOff size={17} aria-hidden="true" /> 停止聆聽
-              </button>
-            ) : phase === 'requesting' ? (
-              <button type="button" className="lesson-primary" disabled aria-disabled="true" data-testid="button-lesson-requesting">
-                <span className="lesson-loading-dot" aria-hidden="true" /> 正在連接麥克風…
-              </button>
-            ) : phase === 'complete' ? (
-              <button type="button" className="lesson-primary lesson-complete-button" onClick={() => setLocation('/')} data-testid="button-lesson-complete-home">
-                <Check size={17} aria-hidden="true" /> 帶著第一個音回首頁
-              </button>
-            ) : (
-              <button type="button" className="lesson-primary" onClick={() => void startListening()} data-testid="button-start-lesson-listening">
-                <Mic size={17} aria-hidden="true" /> {phase === 'idle' ? '開始聆聽' : '重新聆聽'}
-              </button>
-            )}
-          </div>
-          <p className="lesson-privacy"><Check size={13} aria-hidden="true" /> 不會錄音或上傳，音訊只在此裝置即時分析</p>
+          {errorMessage && (
+            <p className="lesson-error" role="status" aria-live="polite">{errorMessage}</p>
+          )}
         </section>
-        <footer className="lesson-footer"><span>循著琴音，走進森林深處</span><span>慢慢來，聽見就是進步</span></footer>
       </div>
     </main>
   );
