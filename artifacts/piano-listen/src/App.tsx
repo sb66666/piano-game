@@ -392,6 +392,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/listen" component={ListenScreen} />
         <Route path="/learn" component={LessonScreen} />
+        <Route path="/course" component={LessonScreen} />
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>
