@@ -7,7 +7,7 @@ import NotFound from '@/pages/not-found';
 import { Activity, ArrowUpRight, AudioLines, Check, Mic, MicOff, Music2, ShieldCheck } from 'lucide-react';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import forestScene from '@assets/generated_images/piano-forest-home.jpg';
-import LessonScreen from '@/pages/lesson';
+import LessonScreen, { FiveNotePracticeScreen } from '@/pages/lesson';
 import HandPositionScreen from '@/pages/hand-position';
 import { makeReading, NOTE_TW, pitchFromBuffer, type Reading } from '@/lib/pitch';
 
@@ -393,6 +393,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/listen" component={ListenScreen} />
         <Route path="/learn" component={LessonScreen} />
+        <Route path="/practice-five-notes" component={FiveNotePracticeScreen} />
         <Route path="/course" component={LessonScreen} />
         <Route path="/hand-position" component={HandPositionScreen} />
         <Route component={NotFound} />

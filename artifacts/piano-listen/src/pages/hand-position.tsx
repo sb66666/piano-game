@@ -106,8 +106,8 @@ export default function HandPositionScreen() {
           <button
             type="button"
             className="min-h-12 min-w-24 rounded-full border border-[rgba(226,189,120,.68)] bg-[hsl(var(--primary))] px-7 font-medium tracking-[.08em] text-[hsl(var(--primary-foreground))] shadow-[0_8px_24px_rgba(0,0,0,.2)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[hsl(var(--primary))] active:translate-y-0"
-            onClick={() => setLocation('/')}
-            aria-label="了解手指位置並返回首頁"
+            onClick={() => setLocation('/practice-five-notes')}
+            aria-label="了解手指位置並開始 Do 到 Sol 練習"
             data-testid="button-understood"
           >
             了解

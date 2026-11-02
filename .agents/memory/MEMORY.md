@@ -1,1 +1,1 @@
-- [Pitch accuracy and lesson flow](pitch-accuracy.md) — preserve accurate detection; skipping advances to the next screen, while real Do success opens the hand map.
+- [Pitch accuracy and lesson flow](pitch-accuracy.md) — preserve accurate detection from Central Do through the hand map and Do–Sol practice.

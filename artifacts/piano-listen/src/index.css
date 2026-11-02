@@ -703,6 +703,59 @@ html, body { background: #0b1715; }
 }
 .lesson-dialogue.is-retryable .lesson-prompt { cursor: pointer; }
 .lesson-dialogue.is-retryable .lesson-prompt:focus-visible { outline: 2px solid #d0aa68; outline-offset: 6px; }
+.lesson-content.is-sequence-lesson .lesson-dialogue { margin-bottom: clamp(18px, 3vh, 32px); }
+.lesson-sequence-progress {
+  display: flex;
+  width: 100%;
+  max-width: 1000px;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto clamp(20px, 4vh, 36px);
+}
+.lesson-sequence-notes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lesson-sequence-note {
+  display: flex;
+  min-width: 58px;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid rgba(226, 189, 120, .2);
+  border-radius: 13px;
+  padding: 7px 11px;
+  color: rgba(238, 229, 202, .68);
+  background: rgba(8, 22, 19, .38);
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+.lesson-sequence-note span {
+  font-family: var(--app-font-serif);
+  font-size: 15px;
+}
+.lesson-sequence-note small { font-size: 9px; }
+.lesson-sequence-note.is-current {
+  border-color: rgba(226, 189, 120, .8);
+  color: #f2d18e;
+  background: rgba(226, 189, 120, .12);
+}
+.lesson-sequence-note.is-complete {
+  border-color: rgba(226, 189, 120, .36);
+  color: #e2bd78;
+  background: rgba(226, 189, 120, .08);
+}
+.lesson-sequence-status {
+  margin: 0;
+  color: rgba(238, 229, 202, .65);
+  font-size: 12px;
+  letter-spacing: .04em;
+}
 .lesson-keyboard-card {
   width: 100%;
   max-width: 1000px;
@@ -723,11 +776,38 @@ html, body { background: #0b1715; }
   font-size: 13px;
   text-align: left;
 }
+.lesson-restart {
+  border: 1px solid rgba(226, 189, 120, .72);
+  border-radius: 999px;
+  padding: 11px 22px;
+  color: #182b24;
+  background: #e2bd78;
+  font-size: 13px;
+  letter-spacing: .06em;
+  cursor: pointer;
+}
+.lesson-restart:hover { background: #f0d28f; }
+.lesson-restart:focus-visible { outline: 2px solid #f0d28f; outline-offset: 3px; }
+.lesson-practice-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.lesson-home {
+  border: 1px solid rgba(226, 189, 120, .35);
+  border-radius: 999px;
+  padding: 11px 22px;
+  color: rgba(238, 229, 202, .8);
+  background: rgba(8, 22, 19, .38);
+  font-size: 13px;
+  letter-spacing: .06em;
+  cursor: pointer;
+}
+.lesson-home:hover { border-color: rgba(226, 189, 120, .7); color: #f0ead4; }
+.lesson-home:focus-visible { outline: 2px solid #d0aa68; outline-offset: 3px; }
 @media (max-width: 640px) {
   .lesson-wrap { padding: 28px 16px; }
   .lesson-skip { top: 14px; right: 16px; padding: 7px 10px; font-size: 11px; }
   .lesson-content { justify-content: center; }
   .lesson-dialogue { margin-bottom: 38px; }
+  .lesson-sequence-progress { margin-bottom: 22px; }
+  .lesson-sequence-note { min-width: 54px; padding: 6px 8px; }
   .lesson-keyboard { height: 145px; }
   .lesson-error { margin-top: 16px; font-size: 12px; }
 }

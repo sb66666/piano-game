@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { makeReading, midiFromReading, pitchFromBuffer, type Reading } from '@/lib/pitch';
+import {
+  CENTRAL_DO_SEQUENCE,
+  FIVE_NOTE_SEQUENCE,
+  matchesSequenceNote,
+  REQUIRED_STABLE_FRAMES,
+} from '@/lib/piano-sequence';
 
 type LessonPhase = 'idle' | 'requesting' | 'listening' | 'denied' | 'unavailable' | 'unsupported' | 'error' | 'complete';
-const CENTRAL_C_MIDI = 60;
-const CENTRAL_C_TOLERANCE_CENTS = 25;
-const MIN_CENTRAL_C_CLARITY = 0.84;
-const STABLE_C_FRAMES_REQUIRED = 5;
+type LessonMode = 'central-do' | 'five-note-sequence';
 
 const KEY_NAMES = ['Do', '升 Do', 'Re', '升 Re', 'Mi', 'Fa', '升 Fa', 'Sol', '升 Sol', 'La', '升 La', 'Si'];
 const WHITE_PITCHES = new Set([0, 2, 4, 5, 7, 9, 11]);
@@ -14,16 +17,27 @@ const WHITE_MIDI = Array.from({ length: 24 }, (_, index) => 48 + index).filter((
 const BLACK_MIDI = Array.from({ length: 24 }, (_, index) => 48 + index).filter((midi) => !WHITE_PITCHES.has(midi % 12));
 
 export default function LessonScreen() {
+  return <PitchLesson mode="central-do" />;
+}
+
+export function FiveNotePracticeScreen() {
+  return <PitchLesson mode="five-note-sequence" />;
+}
+
+function PitchLesson({ mode }: { mode: LessonMode }) {
   const [, setLocation] = useLocation();
+  const lessonSequence = mode === 'five-note-sequence' ? FIVE_NOTE_SEQUENCE : CENTRAL_DO_SEQUENCE;
   const [phase, setPhase] = useState<LessonPhase>('idle');
   const [reading, setReading] = useState<Reading | null>(null);
+  const [sequenceIndex, setSequenceIndex] = useState(0);
   const streamRef = useRef<MediaStream | null>(null);
   const contextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const timerRef = useRef<number | null>(null);
   const generationRef = useRef(0);
-  const stableCFramesRef = useRef(0);
+  const stableTargetFramesRef = useRef(0);
+  const sequenceIndexRef = useRef(0);
 
   const releaseAudio = useCallback(async () => {
     if (timerRef.current !== null) {
@@ -54,14 +68,14 @@ export default function LessonScreen() {
     setPhase(nextPhase);
   }, [releaseAudio]);
 
-  const startListening = useCallback(async () => {
-    if (phase === 'requesting' || phase === 'listening' || phase === 'complete') return;
+  const startListening = useCallback(async (force = false) => {
+    if (!force && (phase === 'requesting' || phase === 'listening' || phase === 'complete')) return;
     if (!navigator.mediaDevices?.getUserMedia || typeof window.AudioContext === 'undefined') {
       setPhase('unsupported');
       return;
     }
     const generation = ++generationRef.current;
-    stableCFramesRef.current = 0;
+    stableTargetFramesRef.current = 0;
     setReading(null);
     setPhase('requesting');
     try {
@@ -97,19 +111,25 @@ export default function LessonScreen() {
         analyser.getFloatTimeDomainData(buffer);
         const frame = pitchFromBuffer(buffer, context.sampleRate);
         if (!frame) {
-          stableCFramesRef.current = 0;
+          stableTargetFramesRef.current = 0;
           return;
         }
         const nextReading = makeReading(frame.frequency);
         setReading(nextReading);
-        const isStableCentralC = midiFromReading(nextReading) === CENTRAL_C_MIDI
-          && Math.abs(nextReading.cents) <= CENTRAL_C_TOLERANCE_CENTS
-          && frame.clarity >= MIN_CENTRAL_C_CLARITY;
-        stableCFramesRef.current = isStableCentralC ? stableCFramesRef.current + 1 : 0;
-        if (stableCFramesRef.current >= STABLE_C_FRAMES_REQUIRED) {
-          generationRef.current += 1;
-          setPhase('complete');
-          void releaseAudio();
+        const target = lessonSequence[sequenceIndexRef.current];
+        const isStableTarget = target !== undefined
+          && matchesSequenceNote(midiFromReading(nextReading), nextReading.cents, frame.clarity, target.midi);
+        stableTargetFramesRef.current = isStableTarget ? stableTargetFramesRef.current + 1 : 0;
+        if (stableTargetFramesRef.current >= REQUIRED_STABLE_FRAMES) {
+          stableTargetFramesRef.current = 0;
+          const nextIndex = sequenceIndexRef.current + 1;
+          sequenceIndexRef.current = nextIndex;
+          setSequenceIndex(nextIndex);
+          if (nextIndex >= lessonSequence.length) {
+            generationRef.current += 1;
+            setPhase('complete');
+            void releaseAudio();
+          }
         }
       }, 100);
 
@@ -126,7 +146,7 @@ export default function LessonScreen() {
       else if (name === 'NotFoundError' || name === 'DevicesNotFoundError' || name === 'NotReadableError') setPhase('unavailable');
       else setPhase('error');
     }
-  }, [phase, releaseAudio, stopListening]);
+  }, [lessonSequence, phase, releaseAudio, stopListening]);
 
   const startListeningRef = useRef(startListening);
   startListeningRef.current = startListening;
@@ -139,13 +159,15 @@ export default function LessonScreen() {
   }, []);
 
   useEffect(() => {
-    if (phase !== 'complete') return;
+    if (phase !== 'complete' || mode !== 'central-do') return;
     const timer = window.setTimeout(() => setLocation('/hand-position'), 900);
     return () => window.clearTimeout(timer);
-  }, [phase, setLocation]);
+  }, [mode, phase, setLocation]);
 
   const detectedMidi = reading ? midiFromReading(reading) : null;
-  const targetMidi = CENTRAL_C_MIDI;
+  const targetNote = lessonSequence[Math.min(sequenceIndex, lessonSequence.length - 1)];
+  const targetMidi = targetNote.midi;
+  const isSequenceLesson = mode === 'five-note-sequence';
   const isError = ['denied', 'unavailable', 'unsupported', 'error'].includes(phase);
   const errorMessage = phase === 'denied'
     ? '請允許麥克風。'
@@ -160,20 +182,30 @@ export default function LessonScreen() {
     await stopListening('idle');
     setLocation('/hand-position');
   };
+  const restartSequence = async () => {
+    await stopListening('idle');
+    stableTargetFramesRef.current = 0;
+    sequenceIndexRef.current = 0;
+    setSequenceIndex(0);
+    setReading(null);
+    void startListeningRef.current(true);
+  };
 
   return (
     <main className="lesson-shell">
       <div className="lesson-wrap">
-        <button
-          type="button"
-          className="lesson-skip"
-          onClick={() => void skipToHandPosition()}
-          aria-label="跳過中央 Do 練習，前往手指位置"
-          data-testid="button-skip-lesson"
-        >
-          跳過
-        </button>
-        <section className="lesson-content page-enter" aria-labelledby="lesson-instruction">
+        {!isSequenceLesson && (
+          <button
+            type="button"
+            className="lesson-skip"
+            onClick={() => void skipToHandPosition()}
+            aria-label="跳過中央 Do 練習，前往手指位置"
+            data-testid="button-skip-lesson"
+          >
+            跳過
+          </button>
+        )}
+        <section className={`lesson-content page-enter ${isSequenceLesson ? 'is-sequence-lesson' : ''}`} aria-labelledby="lesson-instruction">
           <div className={`lesson-dialogue ${isError ? 'is-retryable' : ''}`}>
             <h1
               id="lesson-instruction"
@@ -188,9 +220,36 @@ export default function LessonScreen() {
                 }
               } : undefined}
             >
-              {phase === 'complete' ? '成功' : '彈下中央 Do 吧！'}
+              {phase === 'complete'
+                ? (isSequenceLesson ? '完成！' : '成功')
+                : (isSequenceLesson ? `彈下 ${targetNote.name} 吧！` : '彈下中央 Do 吧！')}
             </h1>
           </div>
+
+          {isSequenceLesson && (
+            <div className="lesson-sequence-progress" aria-label="Do Re Mi Fa Sol 練習進度">
+              <ol className="lesson-sequence-notes">
+                {lessonSequence.map((note, index) => (
+                  <li
+                    key={note.midi}
+                    className={[
+                      'lesson-sequence-note',
+                      index < sequenceIndex ? 'is-complete' : '',
+                      index === sequenceIndex && phase !== 'complete' ? 'is-current' : '',
+                    ].filter(Boolean).join(' ')}
+                    aria-current={index === sequenceIndex && phase !== 'complete' ? 'step' : undefined}
+                    data-testid={`sequence-note-${note.name.toLowerCase()}`}
+                  >
+                    <span>{note.name}</span>
+                    <small>{note.finger}</small>
+                  </li>
+                ))}
+              </ol>
+              <p className="lesson-sequence-status" role="status" aria-live="polite" data-testid="status-sequence-progress">
+                {phase === 'complete' ? 'Do 到 Sol 都彈到了' : `已完成 ${sequenceIndex} / ${lessonSequence.length} 個音`}
+              </p>
+            </div>
+          )}
 
           <section className="lesson-keyboard-card" aria-label="鋼琴鍵盤">
             <div className="lesson-keyboard" role="group" aria-label="兩個八度的鋼琴琴鍵，偵測到的音符會亮起">
@@ -203,7 +262,7 @@ export default function LessonScreen() {
                     <div key={midi} className={`lesson-white-key ${highlighted ? 'key-active' : ''} ${midi === targetMidi ? 'key-target' : ''}`} aria-label={`${KEY_NAMES[noteIndex]}${octave}${highlighted ? '，目前偵測到' : ''}`} data-testid={`key-note-${midi}`}>
                       {highlighted && <span className="key-glint" aria-hidden="true" />}
                       <span className="white-key-label">{KEY_NAMES[noteIndex]}<small>{octave}</small></span>
-                      {midi === targetMidi && <span className="target-marker">中央 Do</span>}
+                      {midi === targetMidi && <span className="target-marker">{isSequenceLesson ? '目標' : '中央 Do'}</span>}
                     </div>
                   );
                 })}
@@ -219,6 +278,16 @@ export default function LessonScreen() {
           </section>
           {errorMessage && (
             <p className="lesson-error" role="status" aria-live="polite">{errorMessage}</p>
+          )}
+          {isSequenceLesson && phase === 'complete' && (
+            <div className="lesson-practice-actions">
+              <button type="button" className="lesson-restart" onClick={() => void restartSequence()} data-testid="button-restart-sequence">
+                再練一次
+              </button>
+              <button type="button" className="lesson-home" onClick={() => setLocation('/')} data-testid="button-home-after-sequence">
+                返回首頁
+              </button>
+            </div>
           )}
         </section>
       </div>
