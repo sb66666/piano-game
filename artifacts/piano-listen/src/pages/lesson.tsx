@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'wouter';
+import { Check } from 'lucide-react';
 import { makeReading, midiFromReading, pitchFromBuffer, type Reading } from '@/lib/pitch';
 
 type LessonPhase = 'idle' | 'requesting' | 'listening' | 'denied' | 'unavailable' | 'unsupported' | 'error' | 'complete';
@@ -9,6 +11,7 @@ const WHITE_MIDI = Array.from({ length: 24 }, (_, index) => 48 + index).filter((
 const BLACK_MIDI = Array.from({ length: 24 }, (_, index) => 48 + index).filter((midi) => !WHITE_PITCHES.has(midi % 12));
 
 export default function LessonScreen() {
+  const [, setLocation] = useLocation();
   const [phase, setPhase] = useState<LessonPhase>('idle');
   const [reading, setReading] = useState<Reading | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -49,7 +52,7 @@ export default function LessonScreen() {
   }, [releaseAudio]);
 
   const startListening = useCallback(async () => {
-    if (phase === 'requesting' || phase === 'listening' || phase === 'complete') return;
+    if (phase === 'requesting' || phase === 'listening') return;
     if (!navigator.mediaDevices?.getUserMedia || typeof window.AudioContext === 'undefined') {
       setPhase('unsupported');
       return;
@@ -148,21 +151,28 @@ export default function LessonScreen() {
       <div className="lesson-wrap">
         <section className="lesson-content page-enter" aria-labelledby="lesson-instruction">
           <div className={`lesson-dialogue ${isError ? 'is-retryable' : ''}`}>
-            <h1
-              id="lesson-instruction"
-              className="lesson-prompt"
-              role={isError ? 'button' : undefined}
-              tabIndex={isError ? 0 : undefined}
-              onClick={isError ? () => void startListening() : undefined}
-              onKeyDown={isError ? (event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  void startListening();
-                }
-              } : undefined}
-            >
-              彈下中央 Do 吧！
-            </h1>
+            {phase === 'complete' ? (
+              <div className="lesson-success" role="status" aria-live="polite">
+                <span className="success-check" aria-hidden="true"><Check className="success-check-mark" size={30} strokeWidth={3} /></span>
+                <h1 id="lesson-instruction">成功！</h1>
+              </div>
+            ) : (
+              <h1
+                id="lesson-instruction"
+                className="lesson-prompt"
+                role={isError ? 'button' : undefined}
+                tabIndex={isError ? 0 : undefined}
+                onClick={isError ? () => void startListening() : undefined}
+                onKeyDown={isError ? (event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    void startListening();
+                  }
+                } : undefined}
+              >
+                彈下中央 Do 吧！
+              </h1>
+            )}
           </div>
 
           <section className="lesson-keyboard-card" aria-label="鋼琴鍵盤">
@@ -191,9 +201,15 @@ export default function LessonScreen() {
             </div>
           </section>
           {errorMessage && (
-            <p className="lesson-error" role="status" aria-live="polite">{errorMessage}</p>
+            <p className="lesson-error" role="status" aria-live="polite" data-testid="status-lesson-error">{errorMessage}</p>
           )}
         </section>
+        {phase === 'complete' && (
+          <div className="lesson-completion-actions" data-testid="lesson-completion-actions">
+            <button type="button" className="lesson-retry-button" onClick={() => void startListening()} data-testid="button-lesson-retry">再試一次</button>
+            <button type="button" className="lesson-continue-button" onClick={() => setLocation('/listen')} data-testid="button-lesson-continue">繼續</button>
+          </div>
+        )}
       </div>
     </main>
   );
