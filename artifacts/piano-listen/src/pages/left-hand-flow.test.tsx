@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import BassClefScreen from './bass-clef';
 import LeftHandIntroScreen from './left-hand-intro';
 import TwoHandScoreScreen from './two-hand-score';
-import { TWO_HAND_BEE_SCORE } from '@/lib/two-hand-score';
+import { TWO_HAND_BEE_SCORE, TWO_HAND_STEPS } from '@/lib/two-hand-score';
 
 const mocks = vi.hoisted(() => ({ setLocation: vi.fn() }));
 
@@ -38,12 +38,22 @@ describe('left-hand lesson flow', () => {
     expect(mocks.setLocation).toHaveBeenCalledWith('/two-hand-score');
   });
 
-  it('draws all sixteen measures of the two-hand score with full-length bars', () => {
+  it('keeps both hands one octave lower, with the left hand in bass-clef range', () => {
     expect(TWO_HAND_BEE_SCORE).toHaveLength(16);
-    expect(TWO_HAND_BEE_SCORE.every((m) => m.right.reduce((s, n) => s + n.beats, 0) === 4)).toBe(true);
-    expect(TWO_HAND_BEE_SCORE.every((m) => m.left.reduce((s, n) => s + n.beats, 0) === 4)).toBe(true);
+    expect(TWO_HAND_BEE_SCORE.every((m) => m.right.reduce((sum, n) => sum + n.beats, 0) === 4)).toBe(true);
+    expect(TWO_HAND_BEE_SCORE.every((m) => m.left.reduce((sum, n) => sum + n.beats, 0) === 4)).toBe(true);
     expect(TWO_HAND_BEE_SCORE.every((m) => [...m.lyrics].length === m.right.length)).toBe(true);
+    expect(TWO_HAND_BEE_SCORE[0].right.map((n) => n.name)).toEqual(['G4', 'E4', 'E4']);
+    expect(TWO_HAND_BEE_SCORE[0].left.map((n) => n.name)).toEqual(['C3', 'G3', 'E3', 'G3']);
+    expect(TWO_HAND_BEE_SCORE[1].left.map((n) => n.midi)).toEqual([47, 55, 53, 55]);
+    expect(TWO_HAND_STEPS).toHaveLength(61);
+  });
+
+  it('shows the note to play below the scrolling two-hand score', () => {
     render(<TwoHandScoreScreen />);
-    expect(screen.getByTestId('two-hand-score')).toBeInTheDocument();
+    const current = screen.getByTestId('two-hand-current-note');
+    expect(current).toHaveTextContent('右手Sol');
+    expect(current).toHaveTextContent('左手Do');
+    expect(screen.getByTestId('two-hand-viewport')).toBeInTheDocument();
   });
 });

@@ -904,24 +904,13 @@ html, body { background: #0b1715; }
 .staff-reading-marker text { fill: #d95563; font: 700 24px var(--app-font-serif); }
 .staff-reading-letter { fill: #272b28; font: 700 26px var(--app-font-serif); }
 .staff-reading-solfege { fill: #6b6556; font: 500 18px var(--app-font-sans); }
-.lesson-shell.two-hand-shell { height: 100dvh; overflow-y: auto; }
-.two-hand-wrap { position: relative; z-index: 1; width: 100%; max-width: 1080px; margin: 0 auto; padding: 20px clamp(10px, 3vw, 32px) 40px; }
-.two-hand-sheet {
-  border-radius: 18px;
-  padding: clamp(8px, 2vw, 22px);
-  background: rgba(243, 239, 220, .97);
-  box-shadow: 0 18px 54px rgba(0, 0, 0, .18);
-  overflow-x: auto;
-}
-.two-hand-sheet svg { display: block; width: 100%; min-width: 760px; height: auto; }
-.two-hand-title { font: 700 34px var(--app-font-serif); fill: #272b28; }
-.two-hand-subtitle { font: 400 20px var(--app-font-serif); fill: #4c493f; letter-spacing: .3em; }
-.two-hand-clef { font-family: 'Bravura'; font-size: 48px; fill: #272b28; }
-.two-hand-time { font-family: 'Bravura'; font-size: 48px; fill: #272b28; }
-.two-hand-brace { fill: none; stroke: #272b28; stroke-width: 3; }
-.two-hand-note { fill: #272b28; stroke: #272b28; stroke-width: 1; }
-.two-hand-note.is-hollow { fill: #f3efdc; stroke-width: 2; }
 .two-hand-chord { font: 500 17px var(--app-font-serif); fill: #272b28; }
-.two-hand-finger { font: 700 14px var(--app-font-sans); fill: #272b28; }
-.two-hand-lyric { font: 500 17px var(--app-font-sans); fill: #272b28; }
-.two-hand-measure-number { font: italic 15px var(--app-font-serif); fill: #272b28; }
+.two-hand-lyric { font: 500 16px var(--app-font-sans); fill: #272b28; }
+.two-hand-now { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px 28px; padding: 6px 0 12px; color: #f0ead4; }
+.two-hand-now-label { color: rgba(225, 196, 135, .85); font-family: var(--app-font-serif); font-size: 15px; letter-spacing: .2em; }
+.two-hand-now-notes { display: flex; gap: 18px; }
+.two-hand-now-note { display: flex; min-width: 120px; align-items: baseline; justify-content: center; gap: 10px; border: 1px solid rgba(226, 189, 120, .4); border-radius: 14px; padding: 12px 20px; background: rgba(9, 24, 21, .55); }
+.two-hand-now-note small { color: rgba(226, 226, 205, .7); font-size: 13px; }
+.two-hand-now-note strong { font-family: var(--app-font-serif); font-size: 34px; font-weight: 600; letter-spacing: .04em; }
+.two-hand-now-note em { color: rgba(226, 226, 205, .62); font-size: 14px; font-style: normal; }
+.two-hand-heard { color: rgba(226, 226, 205, .6); font-size: 13px; }
