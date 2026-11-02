@@ -299,8 +299,8 @@ function PitchLesson({ mode }: { mode: LessonMode }) {
               <button type="button" className="lesson-restart" onClick={() => void restartSequence()} data-testid="button-restart-sequence">
                 再練一次
               </button>
-              <button type="button" className="lesson-home" onClick={() => setLocation('/')} data-testid="button-home-after-sequence">
-                返回首頁
+              <button type="button" className="lesson-home" onClick={() => setLocation('/bee-intro')} data-testid="button-next-bee-intro">
+                下一頁
               </button>
             </div>
           )}
