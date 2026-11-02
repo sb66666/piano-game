@@ -9,6 +9,7 @@ import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import forestScene from '@assets/generated_images/piano-forest-home.jpg';
 import LessonScreen, { FiveNotePracticeScreen } from '@/pages/lesson';
 import HandPositionScreen from '@/pages/hand-position';
+import StaffReadingScreen from '@/pages/staff-reading';
 import BeeIntroScreen from '@/pages/bee-intro';
 import BeePracticeScreen from '@/pages/bee-practice';
 import { makeReading, NOTE_TW, pitchFromBuffer, type Reading } from '@/lib/pitch';
@@ -396,6 +397,7 @@ function Router() {
         <Route path="/listen" component={ListenScreen} />
         <Route path="/learn" component={LessonScreen} />
         <Route path="/practice-five-notes" component={FiveNotePracticeScreen} />
+        <Route path="/staff-reading" component={StaffReadingScreen} />
         <Route path="/bee-intro" component={BeeIntroScreen} />
         <Route path="/bee-practice" component={BeePracticeScreen} />
         <Route path="/course" component={LessonScreen} />

@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 describe('five-note practice navigation', () => {
-  it('skips to the bee introduction without marking the sequence complete', async () => {
+  it('skips to the staff reading page without marking the sequence complete', async () => {
     render(<FiveNotePracticeScreen />);
 
     expect(screen.getByTestId('status-sequence-progress')).toHaveTextContent('已完成 0 / 5 個音');
@@ -27,7 +27,7 @@ describe('five-note practice navigation', () => {
       fireEvent.click(screen.getByTestId('button-skip-sequence'));
     });
 
-    expect(mocks.setLocation).toHaveBeenCalledWith('/bee-intro');
+    expect(mocks.setLocation).toHaveBeenCalledWith('/staff-reading');
     expect(screen.getByTestId('status-sequence-progress')).not.toHaveTextContent('Do 到 Sol 都彈到了');
   });
 });

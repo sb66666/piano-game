@@ -195,7 +195,7 @@ function PitchLesson({ mode }: { mode: LessonMode }) {
           : null;
   const skipToNextScreen = async () => {
     await stopListening('idle');
-    setLocation(isSequenceLesson ? '/bee-intro' : '/hand-position');
+    setLocation(isSequenceLesson ? '/staff-reading' : '/hand-position');
   };
   const restartSequence = async () => {
     await stopListening('idle');
@@ -299,7 +299,7 @@ function PitchLesson({ mode }: { mode: LessonMode }) {
               <button type="button" className="lesson-restart" onClick={() => void restartSequence()} data-testid="button-restart-sequence">
                 再練一次
               </button>
-              <button type="button" className="lesson-home" onClick={() => setLocation('/bee-intro')} data-testid="button-next-bee-intro">
+              <button type="button" className="lesson-home" onClick={() => setLocation('/staff-reading')} data-testid="button-next-staff-reading">
                 下一頁
               </button>
             </div>
