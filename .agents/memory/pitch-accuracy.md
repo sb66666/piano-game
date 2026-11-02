@@ -14,3 +14,7 @@ Keep the previously created lesson screens and content when adding or changing l
 **Why:** the user asked that the earlier material not be deleted.
 
 **How to apply:** add new lesson content without replacing the existing home, Central Do, hand-position, or Do–Sol practice screens.
+
+Lesson order after the hand map: Do–Sol practice → treble clef chart → bee song (intro 3s, practice with skip) → left-hand text (3s) → bass clef chart → two-hand score. Scores are drawn in SVG by the agent; uploaded score images are only arrangement references, never pasted.
+
+**Why:** the user said pasting images is wrong and asked for self-drawn scores.

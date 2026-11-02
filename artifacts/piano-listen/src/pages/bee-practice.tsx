@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'wouter';
 import { BeeScore } from '@/components/bee-score';
 import { makeReading, midiFromReading, pitchFromBuffer, type Reading } from '@/lib/pitch';
 import {
@@ -17,6 +18,7 @@ const WHITE_MIDI = Array.from({ length: 24 }, (_, index) => 48 + index).filter((
 const BLACK_MIDI = Array.from({ length: 24 }, (_, index) => 48 + index).filter((midi) => !WHITE_PITCHES.has(midi % 12));
 
 export default function BeePracticeScreen() {
+  const [, setLocation] = useLocation();
   const [phase, setPhase] = useState<ListenPhase>('idle');
   const [reading, setReading] = useState<Reading | null>(null);
   const [noteIndex, setNoteIndex] = useState(0);
@@ -207,6 +209,10 @@ export default function BeePracticeScreen() {
         : phase === 'error'
           ? '麥克風連線中斷。'
           : null;
+  const skipToNextScreen = async () => {
+    await stopListening('idle');
+    setLocation('/left-hand-intro');
+  };
   const restartSequence = async () => {
     await stopListening('idle');
     stableFramesRef.current = 0;
@@ -220,6 +226,15 @@ export default function BeePracticeScreen() {
   return (
     <main className="lesson-shell">
       <div className="lesson-wrap">
+        <button
+          type="button"
+          className="lesson-skip"
+          onClick={() => void skipToNextScreen()}
+          aria-label="跳過小蜜蜂練習，前往左手學習"
+          data-testid="button-skip-bee"
+        >
+          跳過
+        </button>
         <section className="lesson-content page-enter bee-practice-content" aria-labelledby="bee-practice-title">
           <h1 id="bee-practice-title" className="sr-only">小蜜蜂練習</h1>
           <BeeScore noteIndex={noteIndex} />
@@ -275,6 +290,9 @@ export default function BeePracticeScreen() {
             <div className="lesson-practice-actions">
               <button type="button" className="lesson-restart" onClick={() => void restartSequence()} data-testid="button-restart-bee-song">
                 再彈一次
+              </button>
+              <button type="button" className="lesson-home" onClick={() => setLocation('/left-hand-intro')} data-testid="button-next-left-hand">
+                下一頁
               </button>
             </div>
           )}

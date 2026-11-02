@@ -10,6 +10,9 @@ import forestScene from '@assets/generated_images/piano-forest-home.jpg';
 import LessonScreen, { FiveNotePracticeScreen } from '@/pages/lesson';
 import HandPositionScreen from '@/pages/hand-position';
 import StaffReadingScreen from '@/pages/staff-reading';
+import LeftHandIntroScreen from '@/pages/left-hand-intro';
+import BassClefScreen from '@/pages/bass-clef';
+import TwoHandScoreScreen from '@/pages/two-hand-score';
 import BeeIntroScreen from '@/pages/bee-intro';
 import BeePracticeScreen from '@/pages/bee-practice';
 import { makeReading, NOTE_TW, pitchFromBuffer, type Reading } from '@/lib/pitch';
@@ -400,6 +403,9 @@ function Router() {
         <Route path="/staff-reading" component={StaffReadingScreen} />
         <Route path="/bee-intro" component={BeeIntroScreen} />
         <Route path="/bee-practice" component={BeePracticeScreen} />
+        <Route path="/left-hand-intro" component={LeftHandIntroScreen} />
+        <Route path="/bass-clef" component={BassClefScreen} />
+        <Route path="/two-hand-score" component={TwoHandScoreScreen} />
         <Route path="/course" component={LessonScreen} />
         <Route path="/hand-position" component={HandPositionScreen} />
         <Route component={NotFound} />
