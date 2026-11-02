@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BEE_SONG_SCORE,
   FIVE_NOTE_SEQUENCE,
   matchesSequenceNote,
   SEQUENCE_MINIMUM_RMS,
@@ -15,6 +16,14 @@ describe('five-note piano sequence', () => {
       { midi: 65, name: 'Fa', finger: '無名指' },
       { midi: 67, name: 'Sol', finger: '小指' },
     ]);
+  });
+
+  it('maps the uploaded bee score to the correct note order and staff positions', () => {
+    expect(BEE_SONG_SCORE.map(({ midi }) => midi)).toEqual([
+      67, 64, 64, 65, 62, 62, 60, 62, 64, 65, 67, 67, 67,
+    ]);
+    expect(BEE_SONG_SCORE).toHaveLength(13);
+    expect(BEE_SONG_SCORE.every(({ x, y }) => x >= 0 && x <= 468 && y >= 0 && y <= 58)).toBe(true);
   });
 
   it('accepts the target note only within the pitch and clarity limits', () => {

@@ -1,4 +1,14 @@
+import { useEffect } from 'react';
+import { useLocation } from 'wouter';
+
 export default function BeeIntroScreen() {
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setLocation('/bee-practice'), 3000);
+    return () => window.clearTimeout(timer);
+  }, [setLocation]);
+
   return (
     <main className="lesson-shell">
       <div className="lesson-wrap">

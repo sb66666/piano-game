@@ -10,6 +10,7 @@ import forestScene from '@assets/generated_images/piano-forest-home.jpg';
 import LessonScreen, { FiveNotePracticeScreen } from '@/pages/lesson';
 import HandPositionScreen from '@/pages/hand-position';
 import BeeIntroScreen from '@/pages/bee-intro';
+import BeePracticeScreen from '@/pages/bee-practice';
 import { makeReading, NOTE_TW, pitchFromBuffer, type Reading } from '@/lib/pitch';
 
 type Phase = 'idle' | 'requesting' | 'listening' | 'denied' | 'unavailable' | 'unsupported' | 'error';
@@ -396,6 +397,7 @@ function Router() {
         <Route path="/learn" component={LessonScreen} />
         <Route path="/practice-five-notes" component={FiveNotePracticeScreen} />
         <Route path="/bee-intro" component={BeeIntroScreen} />
+        <Route path="/bee-practice" component={BeePracticeScreen} />
         <Route path="/course" component={LessonScreen} />
         <Route path="/hand-position" component={HandPositionScreen} />
         <Route component={NotFound} />
