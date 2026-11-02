@@ -135,6 +135,7 @@ export default function LessonScreen() {
 
   const detectedMidi = reading ? midiFromReading(reading) : null;
   const targetMidi = 60;
+  const targetDetected = Boolean(reading && detectedMidi === targetMidi && Math.abs(reading.cents) <= 35);
   const isError = ['denied', 'unavailable', 'unsupported', 'error'].includes(phase);
   const errorMessage = phase === 'denied'
     ? '請允許麥克風。'
@@ -182,9 +183,11 @@ export default function LessonScreen() {
                   const noteIndex = midi % 12;
                   const octave = Math.floor(midi / 12) - 1;
                   const highlighted = detectedMidi === midi || (phase === 'complete' && midi === targetMidi);
+                  const isDetectedTarget = midi === targetMidi && targetDetected;
                   return (
-                    <div key={midi} className={`lesson-white-key ${highlighted ? 'key-active' : ''} ${midi === targetMidi ? 'key-target' : ''}`} aria-label={`${KEY_NAMES[noteIndex]}${octave}${highlighted ? '，目前偵測到' : ''}`} data-testid={`key-note-${midi}`}>
+                    <div key={midi} className={`lesson-white-key ${highlighted ? 'key-active' : ''} ${midi === targetMidi ? 'key-target' : ''} ${isDetectedTarget ? 'key-target-detected' : ''}`} aria-label={`${KEY_NAMES[noteIndex]}${octave}${isDetectedTarget ? '，中央 Do 已偵測' : highlighted ? '，目前偵測到' : ''}`} data-testid={`key-note-${midi}`}>
                       {highlighted && <span className="key-glint" aria-hidden="true" />}
+                      {isDetectedTarget && <span className="target-detected-check" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>}
                       <span className="white-key-label">{KEY_NAMES[noteIndex]}<small>{octave}</small></span>
                       {midi === targetMidi && <span className="target-marker">中央 Do</span>}
                     </div>

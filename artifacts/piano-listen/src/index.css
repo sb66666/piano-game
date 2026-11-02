@@ -806,3 +806,27 @@ html, body { background: #0b1715; }
   .success-check,
   .success-check-mark path { animation-duration: .01ms; animation-delay: 0ms; }
 }
+.lesson-white-key.key-target-detected {
+  border-color: #548f5f;
+  background: linear-gradient(180deg, #b6dbad 0%, #8abe83 100%);
+  box-shadow: inset 0 3px 0 rgba(255,255,255,.32), 0 3px 10px rgba(53, 117, 70, .24);
+}
+.key-target-detected .white-key-label,
+.key-target-detected .target-marker { color: #204c2b; font-weight: 700; }
+.target-detected-check {
+  position: absolute;
+  z-index: 2;
+  bottom: 34px;
+  left: 50%;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  transform: translateX(-50%) scale(.4);
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.75);
+  border-radius: 50%;
+  color: #fff;
+  background: #478e55;
+  box-shadow: 0 2px 8px rgba(22, 68, 34, .35);
+  animation: success-pop .42s cubic-bezier(.2, .8, .2, 1) both;
+}
