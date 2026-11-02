@@ -1,0 +1,1 @@
+- [Pitch accuracy](pitch-accuracy.md) — prioritize correct note detection; never present a preview as a real microphone result.

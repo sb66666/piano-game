@@ -648,6 +648,7 @@ html, body { background: #0b1715; }
 /* Minimal lesson screen: only the goal and the keyboard remain visible. */
 .lesson-shell { min-height: 100dvh; overflow: hidden; }
 .lesson-wrap {
+  position: relative;
   display: flex;
   min-height: 100dvh;
   width: 100%;
@@ -656,6 +657,21 @@ html, body { background: #0b1715; }
   margin: 0 auto;
   padding: clamp(24px, 5vh, 52px) clamp(16px, 6vw, 88px);
 }
+.lesson-skip {
+  position: absolute;
+  z-index: 2;
+  top: clamp(16px, 3vh, 30px);
+  right: clamp(16px, 6vw, 88px);
+  border: 1px solid rgba(230, 220, 188, .24);
+  border-radius: 3px;
+  padding: 8px 13px;
+  color: rgba(234, 231, 207, .68);
+  background: rgba(18, 40, 34, .48);
+  font-size: 12px;
+  cursor: pointer;
+}
+.lesson-skip:hover { color: #f1ebd6; border-color: rgba(230, 220, 188, .45); }
+.lesson-skip:focus-visible { outline: 2px solid #d0aa68; outline-offset: 3px; }
 .lesson-content {
   display: flex;
   width: 100%;
@@ -709,6 +725,7 @@ html, body { background: #0b1715; }
 }
 @media (max-width: 640px) {
   .lesson-wrap { padding: 28px 16px; }
+  .lesson-skip { top: 14px; right: 16px; padding: 7px 10px; font-size: 11px; }
   .lesson-content { justify-content: center; }
   .lesson-dialogue { margin-bottom: 38px; }
   .lesson-keyboard { height: 145px; }
