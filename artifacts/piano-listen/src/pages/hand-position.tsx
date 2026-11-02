@@ -1,112 +1,118 @@
+import { useLocation } from 'wouter';
+
 const mappings = [
-  { finger: '拇指', note: 'Do', x: 78, tipX: 124, tipY: 180 },
-  { finger: '食指', note: 'Re', x: 182, tipX: 190, tipY: 73 },
-  { finger: '中指', note: 'Mi', x: 286, tipX: 244, tipY: 39 },
-  { finger: '無名指', note: 'Fa', x: 390, tipX: 298, tipY: 56 },
-  { finger: '小指', note: 'Sol', x: 494, tipX: 350, tipY: 88 },
+  { note: 'Do', finger: '拇指', x: 96 },
+  { note: 'Re', finger: '食指', x: 210 },
+  { note: 'Mi', finger: '中指', x: 324 },
+  { note: 'Fa', finger: '無名指', x: 438 },
+  { note: 'Sol', finger: '小指', x: 552 },
 ];
 
 export default function HandPositionScreen() {
+  const [, setLocation] = useLocation();
+
   return (
     <main className="lesson-shell min-h-[100dvh]">
       <div className="lesson-wrap">
-        <section className="mx-auto flex w-full max-w-[860px] flex-1 flex-col justify-center py-8 sm:py-12" aria-labelledby="hand-position-title">
-          <h1 id="hand-position-title" className="mb-7 text-center font-serif text-[clamp(30px,5vw,46px)] font-medium leading-tight tracking-[.12em] text-[hsl(var(--foreground))] sm:mb-9">
+        <section
+          className="mx-auto flex w-full max-w-[900px] flex-1 flex-col justify-center py-6 sm:py-10"
+          aria-labelledby="hand-position-title"
+        >
+          <h1 id="hand-position-title" className="mb-5 text-center font-serif text-[clamp(28px,5vw,44px)] font-medium leading-tight tracking-[.1em] text-[hsl(var(--foreground))] sm:mb-7">
             右手五指
           </h1>
 
-          <div className="relative overflow-hidden border-y border-[hsl(var(--foreground)/.13)] bg-[rgba(8,22,19,.28)] px-2 py-5 sm:px-6 sm:py-7">
-            <div className="pointer-events-none absolute inset-x-[8%] top-1/2 h-px bg-gradient-to-r from-transparent via-[rgba(205,166,99,.16)] to-transparent" aria-hidden="true" />
+          <div className="relative w-full overflow-hidden rounded-[1.75rem] border border-[rgba(226,189,120,.16)] bg-[rgba(8,22,19,.32)] px-2 py-3 sm:px-7 sm:py-6">
             <svg
-              className="relative mx-auto block h-auto w-full max-w-[660px]"
-              viewBox="0 0 572 460"
-              aria-hidden="true"
+              className="mx-auto block h-auto w-full max-w-[660px]"
+              viewBox="0 0 648 470"
+              role="img"
+              aria-labelledby="hand-illustration-title hand-illustration-desc"
               xmlns="http://www.w3.org/2000/svg"
             >
+              <title id="hand-illustration-title">右手放在 Do 到 Sol 五個琴鍵上</title>
+              <desc id="hand-illustration-desc">
+                平面插畫顯示右手五指與白鍵對應：拇指 Do、食指 Re、中指 Mi、無名指 Fa、小指 Sol。
+              </desc>
               <defs>
-                <linearGradient id="handFill" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#d9c99f" stopOpacity=".96" />
-                  <stop offset="1" stopColor="#a9ad88" stopOpacity=".9" />
+                <linearGradient id="flat-palm" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#d7d5aa" />
+                  <stop offset="1" stopColor="#a9b99a" />
                 </linearGradient>
-                <linearGradient id="palmShade" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#f0dfb4" stopOpacity=".12" />
-                  <stop offset="1" stopColor="#192d26" stopOpacity=".08" />
+                <linearGradient id="flat-key" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#f0ead5" />
+                  <stop offset="1" stopColor="#d4d5c0" />
                 </linearGradient>
               </defs>
 
-              {mappings.map(({ finger, note, x, tipX, tipY }) => (
-                <g key={finger}>
-                  <path
-                    d={`M ${x} 70 C ${x} 96, ${tipX} ${tipY + 16}, ${tipX} ${tipY + 52}`}
-                    fill="none"
-                    stroke="rgba(217,185,121,.62)"
-                    strokeWidth="1.25"
-                    strokeDasharray="3 5"
-                  />
-                  <rect x={x - 37} y="5" width="74" height="62" rx="2" fill="rgba(10,27,23,.82)" stroke="rgba(217,185,121,.32)" />
-                  <text x={x} y="27" textAnchor="middle" fill="rgba(238,229,202,.73)" fontSize="11" fontFamily="var(--app-font-sans)">{finger}</text>
-                  <text x={x} y="51" textAnchor="middle" fill="#e2bd78" fontSize="18" fontWeight="600" fontFamily="var(--app-font-serif)">{note}</text>
+              {mappings.map(({ finger, note, x }) => (
+                <g key={`mapping-${note}`}>
+                  <text x={x} y="40" textAnchor="middle" fill="rgba(238,229,202,.78)" fontSize="11" fontFamily="var(--app-font-sans)">
+                    {finger}
+                  </text>
+                  <text x={x} y="61" textAnchor="middle" fill="#e2bd78" fontSize="14" fontWeight="600" fontFamily="var(--app-font-serif)">
+                    {note}
+                  </text>
                 </g>
               ))}
 
-              <g transform="translate(0 52)">
-              <path
-                d="M 180 328
-                   C 160 318 147 297 143 273
-                   L 119 215
-                   C 113 200 119 186 131 182
-                   C 143 178 153 187 161 202
-                   L 171 220
-                   L 171 104
-                   C 171 85 180 73 194 73
-                   C 209 73 217 85 217 104
-                   L 217 190
-                   L 217 70
-                   C 217 51 226 39 242 39
-                   C 258 39 267 52 267 71
-                   L 267 190
-                   L 267 87
-                   C 267 69 277 56 293 56
-                   C 309 56 319 69 319 88
-                   L 319 198
-                   L 319 119
-                   C 319 101 330 88 346 88
-                   C 362 88 372 101 372 120
-                   L 372 233
-                   C 372 291 348 328 307 343
-                   L 213 343
-                   C 199 343 188 338 180 328 Z"
-                fill="url(#handFill)"
-                stroke="rgba(239,224,186,.72)"
-                strokeWidth="1.5"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M 177 224 C 198 212 227 207 256 210 C 291 213 324 227 351 249 L 349 286 C 326 311 293 325 251 325 C 217 325 190 317 166 299 Z"
-                fill="url(#palmShade)"
-              />
-              <path d="M 179 260 C 210 273 267 275 325 254" fill="none" stroke="rgba(43,72,59,.25)" strokeWidth="1.3" />
-              <path d="M 194 292 C 224 301 274 301 310 288" fill="none" stroke="rgba(43,72,59,.2)" strokeWidth="1.2" />
-              <path d="M 171 215 C 159 229 152 243 151 259" fill="none" stroke="rgba(43,72,59,.23)" strokeWidth="1.2" />
-              {mappings.map(({ finger, tipX, tipY }) => (
-                <g key={`tip-${finger}`}>
-                  <circle cx={tipX} cy={tipY} r="10" fill="rgba(216,177,102,.2)" stroke="rgba(232,194,119,.92)" strokeWidth="1.5" />
-                  <circle cx={tipX} cy={tipY} r="3.5" fill="#e2bd78" />
-                </g>
-              ))}
-              <text x="257" y="373" textAnchor="middle" fill="rgba(231,225,202,.6)" fontSize="10" letterSpacing="2.2" fontFamily="var(--app-font-sans)">右手 · 手掌朝前</text>
+              <g aria-hidden="true">
+                {mappings.map(({ note, x }) => (
+                  <g key={`guide-${note}`}>
+                    <path d={`M ${x} 306 C ${x} 324, ${x} 333, ${x} 350`} fill="none" stroke="rgba(226,189,120,.68)" strokeWidth="1.5" strokeDasharray="3 6" />
+                    <circle cx={x} cy="306" r="5" fill="#e2bd78" />
+                  </g>
+                ))}
               </g>
+
+              <g stroke="rgba(239,229,197,.78)" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
+                <path d="M180 180 L240 180 L240 265 C240 283 228 295 210 295 C192 295 180 283 180 265 Z" fill="url(#flat-palm)" />
+                <path d="M294 164 L354 164 L354 276 C354 294 342 306 324 306 C306 306 294 294 294 276 Z" fill="url(#flat-palm)" />
+                <path d="M408 181 L468 181 L468 286 C468 304 456 316 438 316 C420 316 408 304 408 286 Z" fill="url(#flat-palm)" />
+                <path d="M522 204 L582 204 L582 300 C582 318 570 330 552 330 C534 330 522 318 522 300 Z" fill="url(#flat-palm)" />
+                <path d="M155 212 C142 199 142 180 156 166 L213 117 C236 98 258 97 281 99 L478 101 C513 102 539 123 550 155 L578 216 C587 235 579 253 562 260 C546 267 530 258 521 243 L501 213 C490 198 474 195 460 200 L435 211 C410 196 381 187 348 187 C313 187 281 196 254 214 C232 204 211 202 190 210 L162 239 C149 252 130 250 120 237 C109 224 114 208 128 198 Z" fill="url(#flat-palm)" />
+                <path d="M95 302 C86 294 87 281 97 270 L139 220 C148 208 165 207 176 217 C187 227 187 242 177 254 L133 302 C123 313 105 313 95 302 Z" fill="url(#flat-palm)" />
+                <path d="M185 207 C236 178 303 165 365 171 C421 176 466 190 498 216" fill="none" stroke="rgba(59,86,68,.28)" />
+                <path d="M178 245 C242 264 315 269 390 253" fill="none" stroke="rgba(59,86,68,.22)" />
+                <path d="M210 205 C214 225 214 246 210 266 M324 202 C328 228 328 250 324 276 M438 207 C442 232 442 258 438 285 M552 219 C556 244 556 270 552 300" fill="none" stroke="rgba(59,86,68,.18)" strokeWidth="1.5" />
+              </g>
+
+              <g aria-hidden="true">
+                <rect x="42" y="346" width="564" height="89" rx="9" fill="#071311" stroke="rgba(226,189,120,.38)" strokeWidth="2" />
+                {mappings.map(({ note, x }, index) => (
+                  <g key={`key-${note}`}>
+                    <rect x={x - 53} y="349" width="106" height="82" rx="5" fill="url(#flat-key)" stroke="rgba(29,52,43,.42)" strokeWidth="1.5" />
+                    <text x={x} y="414" textAnchor="middle" fill="#29483b" fontSize="17" fontWeight="600" fontFamily="var(--app-font-serif)">
+                      {note}
+                    </text>
+                    {index === 0 || index === 1 || index === 3 ? (
+                      <rect x={x + 42} y="349" width="22" height="48" rx="3" fill="#152521" />
+                    ) : null}
+                  </g>
+                ))}
+              </g>
+
+              <text x="324" y="458" textAnchor="middle" fill="rgba(231,225,202,.55)" fontSize="12" letterSpacing="1.4" fontFamily="var(--app-font-sans)">
+                右手 · 手掌朝前
+              </text>
             </svg>
           </div>
 
           <ol className="sr-only" aria-label="右手指法音符順序">
-            {mappings.map(({ finger, note }) => (
-              <li key={finger} data-testid={`mapping-${note.toLowerCase()}`}>
-                {finger}：{note}
-              </li>
-            ))}
+            {mappings.map(({ finger, note }) => <li key={finger} data-testid={`mapping-${note.toLowerCase()}`}>{finger}：{note}</li>)}
           </ol>
         </section>
+        <footer className="flex justify-end pb-1 pt-4 sm:pb-2">
+          <button
+            type="button"
+            className="min-h-12 min-w-24 rounded-full border border-[rgba(226,189,120,.68)] bg-[hsl(var(--primary))] px-7 font-medium tracking-[.08em] text-[hsl(var(--primary-foreground))] shadow-[0_8px_24px_rgba(0,0,0,.2)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[hsl(var(--primary))] active:translate-y-0"
+            onClick={() => setLocation('/')}
+            aria-label="了解手指位置並返回首頁"
+            data-testid="button-understood"
+          >
+            了解
+          </button>
+        </footer>
       </div>
     </main>
   );

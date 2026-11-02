@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+TC:wght@400;500;600;700&display=swap');
+
+:root {
+  --background: 170 34% 8%;
+  --foreground: 43 38% 91%;
+  --primary: 42 64% 66%;
+  --primary-foreground: 170 34% 9%;
+  --muted-foreground: 155 13% 67%;
+  --app-font-sans: 'DM Sans', 'Noto Sans TC', sans-serif;
+  --app-font-serif: 'Noto Serif TC', 'Manrope', serif;
+}
+
+.dark {
+  --background: 170 34% 8%;
+  --foreground: 43 38% 91%;
+  --primary: 42 64% 66%;
+  --primary-foreground: 170 34% 9%;
+  --muted-foreground: 155 13% 67%;
+}
+
+html,
+body {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+  background: #0b1715;
+  color: hsl(var(--foreground));
+  font-family: var(--app-font-sans);
+}
+
+.lesson-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  overflow: hidden;
+  color: hsl(43 38% 91%);
+  background:
+    radial-gradient(ellipse at 50% -16%, rgba(73, 115, 99, .31), transparent 48rem),
+    radial-gradient(ellipse at 4% 76%, rgba(28, 75, 65, .18), transparent 38rem),
+    linear-gradient(180deg, #132522 0%, #0b1715 68%, #081311 100%);
+}
+
+.lesson-shell::before {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(2, 8, 7, .58) 100%);
+}
+
+.lesson-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 100dvh;
+  width: 100%;
+  flex-direction: column;
+  margin: 0 auto;
+  padding: clamp(24px, 5vh, 52px) clamp(16px, 6vw, 88px);
+}
