@@ -4,6 +4,7 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
+import CoursePage from '@/pages/course';
 import { Activity, ArrowUpRight, AudioLines, Check, Mic, MicOff, Music2, ShieldCheck } from 'lucide-react';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import forestScene from '@assets/generated_images/piano-forest-home.jpg';
@@ -14,7 +15,28 @@ type Phase = 'idle' | 'requesting' | 'listening' | 'denied' | 'unavailable' | 'u
 const queryClient = new QueryClient();
 const WAVE_HEIGHTS = [12, 20, 15, 29, 19, 36, 24, 42, 27, 35, 17, 31, 44, 23, 34, 18, 39, 26, 15, 32, 20, 42, 25, 35, 18, 29, 13, 22, 37, 21, 33, 16, 27, 40, 24, 14, 34, 19, 29, 12];
 
-function ListenScreen() {
+function playPianoNote(note: { name: string; octave: number }) {
+  const noteIndex = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'].indexOf(note.name);
+  if (noteIndex < 0 || typeof window.AudioContext === 'undefined') return;
+  const context = new AudioContext();
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  const midi = (note.octave + 1) * 12 + noteIndex;
+  const frequency = 440 * 2 ** ((midi - 69) / 12);
+  const now = context.currentTime;
+  oscillator.type = 'triangle';
+  oscillator.frequency.value = frequency;
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.16, now + 0.025);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+  oscillator.start(now);
+  oscillator.stop(now + 0.82);
+  oscillator.addEventListener('ended', () => void context.close(), { once: true });
+}
+
+function ListenScreen({ course = false }: { course?: boolean }) {
   const [, setLocation] = useLocation();
   const [phase, setPhase] = useState<Phase>('idle');
   const [reading, setReading] = useState<Reading | null>(null);
@@ -162,6 +184,18 @@ function ListenScreen() {
     if (active && hasHeard) return '聽見了。再彈一個音，觀察音高與中央刻度的距離。';
     return '點擊下方按鈕後，彈奏單一琴鍵；讓音符自然延續一、兩秒。';
   };
+
+  if (course) {
+    return (
+      <CoursePage
+        onPlayNote={playPianoNote}
+        microphonePhase={phase}
+        detectedNote={reading ? { name: reading.note, octave: reading.octave, cents: reading.cents } : null}
+        onStartListening={() => void startListening()}
+        onStopListening={() => void stopListening()}
+      />
+    );
+  }
 
   return (
     <main className="studio-shell">
@@ -351,9 +385,19 @@ function ListenScreen() {
   );
 }
 
+function CourseScreen() {
+  return <ListenScreen course />;
+}
+
+function ListenRoute() {
+  return <ListenScreen />;
+}
+
 function Home() {
   const [, setLocation] = useLocation();
-  const enterPractice = () => setLocation('/learn');
+  const enterCourse = () => setLocation('/course');
+  const enterPractice = () => setLocation('/listen');
+  const enterCentralCLesson = () => setLocation('/learn');
   return (
     <main className="forest-home flex min-h-[100dvh] items-center" style={{ backgroundImage: `url("${forestScene}")` }}>
       <div className="relative z-[1] mx-auto flex min-h-[100dvh] w-full max-w-[1440px] items-center px-7 py-12 sm:px-14 lg:px-[9.2vw]">
@@ -367,16 +411,19 @@ function Home() {
             沿著燈火指引，從聽見每一個音開始。彈奏一個琴鍵，讓即時音高練習陪你熟悉琴音。
           </p>
           <div className="mt-9 flex max-w-[310px] flex-col gap-3.5">
-            <button type="button" onClick={enterPractice} className="home-action group flex min-h-[56px] w-full items-center justify-between rounded-[3px] border border-[hsl(39_70%_67%/.76)] bg-[hsl(39_70%_57%/.93)] px-5 text-left text-[15px] font-semibold tracking-[.08em] text-[#1c2118] shadow-[0_10px_32px_rgba(8,10,6,.24)] hover:bg-[hsl(39_74%_66%)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[hsl(39_78%_72%/.55)]" data-testid="button-start-learning">
-              <span>開始學習</span><ArrowUpRight size={18} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" aria-hidden="true" />
+            <button type="button" onClick={enterCourse} className="home-action group flex min-h-[56px] w-full items-center justify-between rounded-[3px] border border-[hsl(39_70%_67%/.76)] bg-[hsl(39_70%_57%/.93)] px-5 text-left text-[15px] font-semibold tracking-[.08em] text-[#1c2118] shadow-[0_10px_32px_rgba(8,10,6,.24)] hover:bg-[hsl(39_74%_66%)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[hsl(39_78%_72%/.55)]" data-testid="button-start-learning">
+              <span>開始入門課程</span><ArrowUpRight size={18} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" aria-hidden="true" />
             </button>
-            <button type="button" onClick={enterPractice} className="home-action flex min-h-[54px] w-full items-center justify-between rounded-[3px] border border-[rgba(244,232,201,.38)] bg-[rgba(19,27,19,.38)] px-5 text-left text-[14px] font-medium tracking-[.08em] text-[hsl(43_45%_94%)] backdrop-blur-[3px] hover:border-[hsl(39_70%_67%/.8)] hover:bg-[rgba(19,27,19,.58)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[hsl(39_78%_72%/.55)]" data-testid="button-continue-learning">
-              <span>繼續學習</span><ArrowUpRight size={17} aria-hidden="true" />
+            <button type="button" onClick={enterPractice} className="home-action flex min-h-[54px] w-full items-center justify-between rounded-[3px] border border-[rgba(244,232,201,.38)] bg-[rgba(19,27,19,.38)] px-5 text-left text-[14px] font-medium tracking-[.08em] text-[hsl(43_45%_94%)] backdrop-blur-[3px] hover:border-[hsl(39_70%_67%/.8)] hover:bg-[rgba(19,27,19,.58)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[hsl(39_78%_72%/.55)]" data-testid="button-direct-listen-practice">
+              <span>直接開始聽音練習</span><ArrowUpRight size={17} aria-hidden="true" />
             </button>
           </div>
+          <button type="button" onClick={enterCentralCLesson} className="mt-4 text-left text-xs text-[rgba(247,239,218,.82)] underline decoration-[rgba(247,239,218,.4)] underline-offset-4 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(39_78%_72%/.55)]" data-testid="button-central-c-lesson">
+            體驗單音辨認：中央 C
+          </button>
           <p className="mt-7 flex items-center gap-2 text-[10px] tracking-[.1em] text-[rgba(247,239,218,.68)]" role="status" data-testid="status-home">
             <span className="h-1.5 w-1.5 rounded-full bg-[hsl(39_78%_68%)]" aria-hidden="true" />
-            即時聆聽練習 · 無需帳戶
+            三個循序漸進的入門步驟 · 無需帳戶
           </p>
         </section>
         <p className="absolute bottom-7 right-8 hidden text-[9px] tracking-[.24em] text-[rgba(247,239,218,.62)] md:block">循著琴音，走進森林深處</p>
@@ -390,8 +437,9 @@ function Router() {
     <RoutedErrorBoundary>
       <Switch>
         <Route path="/" component={Home} />
-        <Route path="/listen" component={ListenScreen} />
+        <Route path="/listen" component={ListenRoute} />
         <Route path="/learn" component={LessonScreen} />
+        <Route path="/course" component={CourseScreen} />
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>
