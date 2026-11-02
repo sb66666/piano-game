@@ -157,13 +157,14 @@ export default function LessonScreen() {
           <span className="lesson-counter">第 01 課 <i aria-hidden="true" /> 01 / 01</span>
         </header>
 
-        <section className="lesson-content page-enter" aria-labelledby="lesson-instruction">
+        <section className="lesson-content page-enter" aria-labelledby="lesson-stage-title">
           <div className="lesson-eyebrow"><span /> 第一個音 · 中央 C</div>
+          <h1 id="lesson-stage-title" className="lesson-stage-title">鍵盤</h1>
           <div className={`lesson-dialogue ${phase === 'complete' ? 'is-complete' : ''}`}>
             <span className="dialogue-spark dialogue-spark-one" aria-hidden="true">✳</span>
             <span className="dialogue-spark dialogue-spark-two" aria-hidden="true">✳</span>
             <div className="dialogue-label"><Sparkles size={14} aria-hidden="true" /> 今天的小任務</div>
-            <h1 id="lesson-instruction">{phase === 'complete' ? '太好了，你找到了！' : '彈下中央 Do 吧！'}</h1>
+            <h2 id="lesson-instruction">{phase === 'complete' ? '太好了，你找到了！' : '彈下中央 Do 吧！'}</h2>
             <p>不用急，讓耳朵帶路。找到中間那個 Do 就完成了。</p>
             <div className="dialogue-tail" aria-hidden="true" />
           </div>
