@@ -1,3 +1,4 @@
+import forestScene from '@assets/generated_images/piano-forest-home.jpg';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { TwoHandPracticeScore } from '@/components/two-hand-practice-score';
@@ -215,10 +216,11 @@ export default function TwoHandScoreScreen() {
   };
 
   return (
-    <main className="lesson-shell">
+    <main className="lesson-shell forest-lesson" style={{ backgroundImage: `linear-gradient(180deg, rgba(5, 17, 15, .72), rgba(5, 17, 15, .86)), url("${forestScene}")` }}>
       <div className="lesson-wrap">
         <section className="lesson-content page-enter bee-practice-content" aria-labelledby="two-hand-title">
-          <h1 id="two-hand-title" className="sr-only">小蜜蜂雙手練習</h1>
+          <p className="lesson-eyebrow forest-eyebrow"><span />左右手一起彈</p>
+          <h1 id="two-hand-title" className="forest-title">小蜜蜂雙手練習</h1>
           <TwoHandPracticeScore stepIndex={noteIndex} />
 
           <p className="bee-song-status" role="status" aria-live="polite" data-testid="two-hand-progress">

@@ -1,3 +1,4 @@
+import forestScene from '@assets/generated_images/piano-forest-home.jpg';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { BeeScore } from '@/components/bee-score';
@@ -224,7 +225,7 @@ export default function BeePracticeScreen() {
   };
 
   return (
-    <main className="lesson-shell">
+    <main className="lesson-shell forest-lesson" style={{ backgroundImage: `linear-gradient(180deg, rgba(5, 17, 15, .72), rgba(5, 17, 15, .86)), url("${forestScene}")` }}>
       <div className="lesson-wrap">
         <button
           type="button"
@@ -236,7 +237,8 @@ export default function BeePracticeScreen() {
           跳過
         </button>
         <section className="lesson-content page-enter bee-practice-content" aria-labelledby="bee-practice-title">
-          <h1 id="bee-practice-title" className="sr-only">小蜜蜂練習</h1>
+          <p className="lesson-eyebrow forest-eyebrow"><span />右手練習</p>
+          <h1 id="bee-practice-title" className="forest-title">小蜜蜂練習</h1>
           <BeeScore noteIndex={noteIndex} />
 
           <p className="bee-song-status" role="status" aria-live="polite" data-testid="bee-song-progress">
