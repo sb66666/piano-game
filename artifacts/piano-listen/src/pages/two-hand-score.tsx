@@ -216,7 +216,7 @@ export default function TwoHandScoreScreen() {
   };
 
   return (
-    <main className="lesson-shell forest-lesson" style={{ backgroundImage: `linear-gradient(180deg, rgba(5, 17, 15, .72), rgba(5, 17, 15, .86)), url("${forestScene}")` }}>
+    <main className="lesson-shell forest-lesson" style={{ backgroundImage: `linear-gradient(180deg, rgba(8, 20, 16, .46), rgba(8, 20, 16, .66)), url("${forestScene}")` }}>
       <div className="lesson-wrap">
         <section className="lesson-content page-enter bee-practice-content" aria-labelledby="two-hand-title">
           <p className="lesson-eyebrow forest-eyebrow"><span />左右手一起彈</p>
